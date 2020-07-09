@@ -1,0 +1,175 @@
+<!-- Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved. 
+	WSO2 Inc. licenses this file to you under the Apache License, Version 2.0 
+	(the "License"); you may not use this file except in compliance with the 
+	License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 
+	Unless required by applicable law or agreed to in writing, software distributed 
+	under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES 
+	OR CONDITIONS OF ANY KIND, either express or implied. See the License for 
+	the specific language governing permissions and limitations under the License. -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.wso2</groupId>
+        <artifactId>wso2</artifactId>
+        <version>1.2</version>
+    </parent>
+    <groupId>org.wso2.carbon.identity.application.authentication.oauth2.generic</groupId>
+    <artifactId>identity-outbound-oauth2-generic</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>bundle</packaging>
+    <name>identity-outbound-oauth2-generic</name>
+
+    <repositories>
+        <repository>
+            <id>wso2-nexus</id>
+            <name>WSO2 internal Repository</name>
+            <url>http://maven.wso2.org/nexus/content/groups/wso2-public/</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+                <checksumPolicy>ignore</checksumPolicy>
+            </releases>
+        </repository>
+        <repository>
+            <id>wso2.releases</id>
+            <name>WSO2 internal Repository</name>
+            <url>http://maven.wso2.org/nexus/content/repositories/releases/</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+                <checksumPolicy>ignore</checksumPolicy>
+            </releases>
+        </repository>
+        <repository>
+            <id>wso2.snapshots</id>
+            <name>Apache Snapshot Repository</name>
+            <url>http://maven.wso2.org/nexus/content/repositories/snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>wso2.releases</id>
+            <name>WSO2 internal Repository</name>
+            <url>http://maven.wso2.org/nexus/content/repositories/releases/</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+                <checksumPolicy>ignore</checksumPolicy>
+            </releases>
+        </pluginRepository>
+        <pluginRepository>
+            <id>wso2.snapshots</id>
+            <name>WSO2 Snapshot Repository</name>
+            <url>http://maven.wso2.org/nexus/content/repositories/snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </pluginRepository>
+        <pluginRepository>
+            <id>wso2-nexus</id>
+            <name>WSO2 internal Repository</name>
+            <url>http://maven.wso2.org/nexus/content/groups/wso2-public/</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+                <checksumPolicy>ignore</checksumPolicy>
+            </releases>
+        </pluginRepository>
+    </pluginRepositories>
+    <dependencies>
+        <dependency>
+            <groupId>org.wso2.carbon.identity.framework</groupId>
+            <artifactId>org.wso2.carbon.identity.application.authentication.framework</artifactId>
+            <version>${carbon.identity.framework.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.org.apache.oltu.oauth2</groupId>
+            <artifactId>oltu</artifactId>
+            <version>${oltu.version}</version>
+        </dependency>
+
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <version>3.2.0</version>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Name>${project.artifactId}</Bundle-Name>
+                        <Private-Package>
+                            org.wso2.carbon.identity.application.authentication.oauth2.generic.internal
+                        </Private-Package>
+                        <Import-Package>
+                            javax.servlet.http;version="${javax.servlet.version.range}",
+                            org.apache.commons.lang;version="${apache.commons.version.range}",
+                            org.apache.commons.logging;version="${apache.commons.logging.version.range}",
+                            org.apache.oltu.oauth2.client.request;version="${oltu.version.range}",
+                            org.apache.oltu.oauth2.client.response;version="${oltu.version.range}",
+                            org.apache.oltu.oauth2.common.exception;version="${oltu.version.range}",
+                            org.apache.oltu.oauth2.common.message.types;version="${oltu.version.range}",
+                            org.apache.oltu.oauth2.common.utils;version="${oltu.version.range}",
+                            org.json;version="${json.version.range}",
+                            org.osgi.framework;version="${osgi.framework.version.range}",
+                            org.osgi.service.component;version="${osgi.service.component.imp.pkg.version.range}",
+                            org.wso2.carbon.identity.application.authentication.framework.*;version="${identity.framework.package.import.version.range}",
+                            org.wso2.carbon.identity.application.common.model;version="${identity.framework.package.import.version.range}",
+                            org.wso2.carbon.identity.core.util;version="${identity.framework.package.import.version.range}"
+                        </Import-Package>
+                        <Export-Package>
+                            !org.wso2.carbon.identity.application.authentication.oauth2.generic.internal,
+                            org.wso2.carbon.identity.application.authentication.oauth2.generic.*;
+                            version="1.0.0-SNAPSHOT",
+                        </Export-Package>
+                        <DynamicImport-Package>*</DynamicImport-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.1</version>
+                <inherited>true</inherited>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <oltu.version>1.0.0.wso2v3</oltu.version>
+        <carbon.identity.framework.version>5.17.5</carbon.identity.framework.version>
+        <apache.felix.scr.ds.annotations.version>1.2.4</apache.felix.scr.ds.annotations.version>
+        <osgi.service.component.imp.pkg.version.range>[1.2.0, 2.0.0)</osgi.service.component.imp.pkg.version.range>
+        <identity.framework.package.import.version.range>[5.14.0, 6.0.0)
+        </identity.framework.package.import.version.range>
+        <oauth2.generic.version.range>[0.0,1)</oauth2.generic.version.range>
+        <oltu.version.range>[1.0,2)</oltu.version.range>
+        <apache.commons.version.range>[2.6,3)</apache.commons.version.range>
+        <javax.servlet.version.range>[2.6,3)</javax.servlet.version.range>
+        <apache.commons.logging.version.range>[1.2,2)</apache.commons.logging.version.range>
+        <osgi.framework.version.range>[1.8,2)</osgi.framework.version.range>
+        <json.version.range>[3.0,4)</json.version.range>
+    </properties>
+</project>
