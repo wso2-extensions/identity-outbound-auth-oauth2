@@ -35,3 +35,4 @@ public class Oauth2GenericAuthenticatorConstants {
     public static final String OAUTH_TOKEN_URL = "AuthTokenEndpoint";
     public static final String OAUTH_USER_INFO_URL = "UserInfoEndpoint";
 }
+

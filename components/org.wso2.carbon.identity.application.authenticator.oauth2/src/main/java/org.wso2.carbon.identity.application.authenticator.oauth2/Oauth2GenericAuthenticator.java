@@ -505,3 +505,4 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
     }
 
 }
+
