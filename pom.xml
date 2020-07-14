@@ -101,7 +101,6 @@
     </pluginRepositories>
     <dependencyManagement>
         <dependencies>
-            <!-- https://mvnrepository.com/artifact/org.wso2.carbon.identity.framework/org.wso2.carbon.identity.application.authentication.framework -->
             <dependency>
                 <groupId>org.wso2.carbon.identity.framework</groupId>
                 <artifactId>org.wso2.carbon.identity.application.authentication.framework</artifactId>

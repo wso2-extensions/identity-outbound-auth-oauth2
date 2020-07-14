@@ -34,5 +34,8 @@ public class Oauth2GenericAuthenticatorConstants {
     public static final String OAUTH_AUTHZ_URL = "AuthnEndpoint";
     public static final String OAUTH_TOKEN_URL = "AuthTokenEndpoint";
     public static final String OAUTH_USER_INFO_URL = "UserInfoEndpoint";
+    public static final String IS_BASIC_AUTH_ENABLED = "IsBasicAuthEnabled";
+
+    public static final String ACCESS_TOKEN = "access_token";
 }
 

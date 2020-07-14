@@ -16,7 +16,9 @@
  * under the License.
  ******************************************************************************/
 package org.wso2.carbon.identity.application.authenticator.oauth2;
-
+import com.sun.org.apache.xpath.internal.operations.Bool;
+import org.apache.oltu.oauth2.common.OAuth;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -98,6 +100,7 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
                     .setState(state)
                     .buildQueryMessage();
 
+
             if (logger.isDebugEnabled()) {
                 logger.debug("authzRequest");
                 logger.debug(authzRequest.getLocationUri());
@@ -125,10 +128,13 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
             Map<String, String> authenticatorProperties = context.getAuthenticatorProperties();
             String clientId = authenticatorProperties.get(Oauth2GenericAuthenticatorConstants.CLIENT_ID);
             String clientSecret = authenticatorProperties.get(Oauth2GenericAuthenticatorConstants.CLIENT_SECRET);
+            String redirectUri=authenticatorProperties.get(Oauth2GenericAuthenticatorConstants.CALLBACK_URL);
+            Boolean basicAuthEnabled=
+                    Boolean.parseBoolean(authenticatorProperties.get(Oauth2GenericAuthenticatorConstants.IS_BASIC_AUTH_ENABLED));
             String code = getAuthorizationCode(request);
 
             String tokenEP = getTokenEndpoint(authenticatorProperties);
-            String token = getToken(tokenEP, clientId, clientSecret, code);
+            String token = getToken(tokenEP, clientId, clientSecret, code, redirectUri, basicAuthEnabled);
             String userInfoEP = getUserInfoEndpoint(authenticatorProperties);
             String responseBody = getUserInfo(userInfoEP, token);
             if (logger.isDebugEnabled()) {
@@ -142,6 +148,8 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
         }
 
     }
+
+
 
     protected void buildClaims(AuthenticationContext context, String userInfoString)
             throws ApplicationAuthenticatorException, AuthenticationFailedException {
@@ -205,7 +213,8 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
         context.setSubject(authenticatedUser);
     }
 
-    protected String getToken(String tokenEndPoint, String clientId, String clientSecret, String code)
+    protected String getToken(String tokenEndPoint, String clientId, String clientSecret, String code,
+                              String redirectUri, Boolean basicAuthEnabled)
             throws ApplicationAuthenticatorException {
 
         OAuthClientRequest tokenRequest = null;
@@ -213,8 +222,11 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
         String tokenResponseStr;
         try {
             String state = this.stateToken;
-            tokenRequest = buidTokenRequest(tokenEndPoint, clientId, clientSecret, state, code);
+            tokenRequest = buidTokenRequest(tokenEndPoint, clientId, clientSecret, state, code, redirectUri,basicAuthEnabled);
             tokenResponseStr = sendRequest(tokenRequest.getLocationUri());
+
+            logger.info(tokenResponseStr);
+
             JSONObject tokenResponse = new JSONObject(tokenResponseStr);
             token = tokenResponse.getString("access_token");
             if (StringUtils.isEmpty(token) || StringUtils.isBlank(token))
@@ -267,13 +279,24 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
     }
 
     protected OAuthClientRequest buidTokenRequest(String tokenEndPoint, String clientId, String clientSecret,
-                                                  String state, String code) throws ApplicationAuthenticatorException {
+                                                  String state, String code, String redirectUri,
+                                                  Boolean basicAuthEnabled) throws ApplicationAuthenticatorException {
 
         OAuthClientRequest tokenRequest;
         try {
-            tokenRequest = OAuthClientRequest.tokenLocation(tokenEndPoint).setClientId(clientId)
-                    .setClientSecret(clientSecret).setGrantType(GrantType.AUTHORIZATION_CODE).setCode(code)
-                    .setParameter("state", state).buildQueryMessage();
+            if(!basicAuthEnabled){
+                tokenRequest = OAuthClientRequest.tokenLocation(tokenEndPoint).setClientId(clientId)
+                        .setClientSecret(clientSecret).setGrantType(GrantType.AUTHORIZATION_CODE).setCode(code)
+                        .setRedirectURI(redirectUri)
+                        .setParameter("state", state).buildQueryMessage();
+            }else{
+                tokenRequest = OAuthClientRequest.tokenLocation(tokenEndPoint).setClientId(clientId)
+                        .setClientSecret(clientSecret).setGrantType(GrantType.AUTHORIZATION_CODE).setCode(code)
+                        .setParameter("state", state).buildQueryMessage();
+                String base64EncodedCredential = new String(Base64.encodeBase64((clientId + ":" +
+                        clientSecret).getBytes()));
+                tokenRequest.addHeader(OAuth.HeaderType.AUTHORIZATION, "Basic " + base64EncodedCredential);
+            }
         } catch (OAuthSystemException e) {
             throw new ApplicationAuthenticatorException("Exception while building access token request.", e);
         }
@@ -290,6 +313,7 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
         clientId.setDisplayName("Client Id");
         clientId.setRequired(true);
         clientId.setDescription("Enter client identifier value");
+        clientId.setDisplayOrder(1);
         configProperties.add(clientId);
 
         Property clientSecret = new Property();
@@ -298,6 +322,7 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
         clientSecret.setRequired(true);
         clientSecret.setConfidential(true);
         clientSecret.setDescription("Enter client secret value");
+        clientSecret.setDisplayOrder(2);
         configProperties.add(clientSecret);
 
         Property callbackUrl = new Property();
@@ -305,6 +330,7 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
         callbackUrl.setDisplayName("Callback Url");
         callbackUrl.setRequired(true);
         callbackUrl.setDescription("Enter callback url");
+        callbackUrl.setDisplayOrder(3);
         configProperties.add(callbackUrl);
 
         Property authorizationUrl = new Property();
@@ -312,6 +338,7 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
         authorizationUrl.setDisplayName("Authorization Endpoint Url");
         authorizationUrl.setRequired(true);
         authorizationUrl.setDescription("Enter authorization endpoint url");
+        authorizationUrl.setDisplayOrder(4);
         configProperties.add(authorizationUrl);
 
         Property tokenUrl = new Property();
@@ -319,6 +346,7 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
         tokenUrl.setDisplayName("Token Endpoint Url");
         tokenUrl.setRequired(true);
         tokenUrl.setDescription("Enter token endpoint url");
+        tokenUrl.setDisplayOrder(5);
         configProperties.add(tokenUrl);
 
         Property userInfoUrl = new Property();
@@ -326,6 +354,7 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
         userInfoUrl.setDisplayName("User Information Endpoint Url");
         userInfoUrl.setRequired(true);
         userInfoUrl.setDescription("Enter user information endpoint url");
+        userInfoUrl.setDisplayOrder(6);
         configProperties.add(userInfoUrl);
 
         Property scope = new Property();
@@ -333,7 +362,17 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
         scope.setDisplayName("Scope");
         scope.setRequired(false);
         scope.setDescription("Enter the scope");
+        scope.setDisplayOrder(7);
         configProperties.add(scope);
+
+        Property enableBasicAuth = new Property();
+        enableBasicAuth.setName(Oauth2GenericAuthenticatorConstants.IS_BASIC_AUTH_ENABLED);
+        enableBasicAuth.setDisplayName("Enable HTTP basic auth for client authentication");
+        enableBasicAuth.setRequired(false);
+        enableBasicAuth.setDescription("Specifies that HTTP basic authentication should be used for client authentication, else client credentials will be included in the request body");
+        enableBasicAuth.setType("boolean");
+        enableBasicAuth.setDisplayOrder(8);
+        configProperties.add(enableBasicAuth);
 
         return configProperties;
     }
