@@ -16,14 +16,14 @@
  * under the License.
  ******************************************************************************/
 package org.wso2.carbon.identity.application.authenticator.oauth2;
-import com.sun.org.apache.xpath.internal.operations.Bool;
-import org.apache.oltu.oauth2.common.OAuth;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.oltu.oauth2.client.request.OAuthClientRequest;
 import org.apache.oltu.oauth2.client.response.OAuthAuthzResponse;
+import org.apache.oltu.oauth2.common.OAuth;
 import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
 import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.apache.oltu.oauth2.common.message.types.GrantType;
@@ -100,7 +100,6 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
                     .setState(state)
                     .buildQueryMessage();
 
-
             if (logger.isDebugEnabled()) {
                 logger.debug("authzRequest");
                 logger.debug(authzRequest.getLocationUri());
@@ -128,9 +127,10 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
             Map<String, String> authenticatorProperties = context.getAuthenticatorProperties();
             String clientId = authenticatorProperties.get(Oauth2GenericAuthenticatorConstants.CLIENT_ID);
             String clientSecret = authenticatorProperties.get(Oauth2GenericAuthenticatorConstants.CLIENT_SECRET);
-            String redirectUri=authenticatorProperties.get(Oauth2GenericAuthenticatorConstants.CALLBACK_URL);
-            Boolean basicAuthEnabled=
-                    Boolean.parseBoolean(authenticatorProperties.get(Oauth2GenericAuthenticatorConstants.IS_BASIC_AUTH_ENABLED));
+            String redirectUri = authenticatorProperties.get(Oauth2GenericAuthenticatorConstants.CALLBACK_URL);
+            Boolean basicAuthEnabled =
+                    Boolean.parseBoolean(
+                            authenticatorProperties.get(Oauth2GenericAuthenticatorConstants.IS_BASIC_AUTH_ENABLED));
             String code = getAuthorizationCode(request);
 
             String tokenEP = getTokenEndpoint(authenticatorProperties);
@@ -148,8 +148,6 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
         }
 
     }
-
-
 
     protected void buildClaims(AuthenticationContext context, String userInfoString)
             throws ApplicationAuthenticatorException, AuthenticationFailedException {
@@ -222,7 +220,8 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
         String tokenResponseStr;
         try {
             String state = this.stateToken;
-            tokenRequest = buidTokenRequest(tokenEndPoint, clientId, clientSecret, state, code, redirectUri,basicAuthEnabled);
+            tokenRequest =
+                    buidTokenRequest(tokenEndPoint, clientId, clientSecret, state, code, redirectUri, basicAuthEnabled);
             tokenResponseStr = sendRequest(tokenRequest.getLocationUri());
 
             logger.info(tokenResponseStr);
@@ -284,12 +283,12 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
 
         OAuthClientRequest tokenRequest;
         try {
-            if(!basicAuthEnabled){
+            if (!basicAuthEnabled) {
                 tokenRequest = OAuthClientRequest.tokenLocation(tokenEndPoint).setClientId(clientId)
                         .setClientSecret(clientSecret).setGrantType(GrantType.AUTHORIZATION_CODE).setCode(code)
                         .setRedirectURI(redirectUri)
                         .setParameter("state", state).buildQueryMessage();
-            }else{
+            } else {
                 tokenRequest = OAuthClientRequest.tokenLocation(tokenEndPoint).setClientId(clientId)
                         .setClientSecret(clientSecret).setGrantType(GrantType.AUTHORIZATION_CODE).setCode(code)
                         .setParameter("state", state).buildQueryMessage();
@@ -369,7 +368,8 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
         enableBasicAuth.setName(Oauth2GenericAuthenticatorConstants.IS_BASIC_AUTH_ENABLED);
         enableBasicAuth.setDisplayName("Enable HTTP basic auth for client authentication");
         enableBasicAuth.setRequired(false);
-        enableBasicAuth.setDescription("Specifies that HTTP basic authentication should be used for client authentication, else client credentials will be included in the request body");
+        enableBasicAuth.setDescription(
+                "Specifies that HTTP basic authentication should be used for client authentication, else client credentials will be included in the request body");
         enableBasicAuth.setType("boolean");
         enableBasicAuth.setDisplayOrder(8);
         configProperties.add(enableBasicAuth);
