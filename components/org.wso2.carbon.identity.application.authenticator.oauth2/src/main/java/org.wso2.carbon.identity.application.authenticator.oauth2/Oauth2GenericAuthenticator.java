@@ -496,6 +496,7 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
         if (StringUtils.isEmpty(tokenUrl)) {
             this.tokenEndpoint = getAuthenticatorConfig().getParameterMap()
                     .get(Oauth2GenericAuthenticatorConstants.OAUTH_TOKEN_URL);
+        } else {
             this.tokenEndpoint = tokenUrl;
         }
     }
@@ -503,19 +504,24 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
     protected void initOAuthEndpoint(Map<String, String> authenticatorProperties) {
 
         String oAuthUrl = authenticatorProperties.get(Oauth2GenericAuthenticatorConstants.OAUTH_AUTHZ_URL);
-        if (StringUtils.isEmpty(oAuthUrl))
+        if (StringUtils.isEmpty(oAuthUrl)) {
             this.oAuthEndpoint = getAuthenticatorConfig().getParameterMap()
                     .get(Oauth2GenericAuthenticatorConstants.OAUTH_AUTHZ_URL);
-        this.oAuthEndpoint = oAuthUrl;
+        } else {
+            this.oAuthEndpoint = oAuthUrl;
+        }
     }
 
     protected void initUserInfoEndPoint(Map<String, String> authenticatorProperties) {
 
         String userInfoUrl = authenticatorProperties.get(Oauth2GenericAuthenticatorConstants.OAUTH_USER_INFO_URL);
-        if (StringUtils.isEmpty(userInfoUrl))
+        if (StringUtils.isEmpty(userInfoUrl)) {
             this.userInfoEndpoint = getAuthenticatorConfig().getParameterMap()
                     .get(Oauth2GenericAuthenticatorConstants.OAUTH_USER_INFO_URL);
-        this.userInfoEndpoint = userInfoUrl;
+        } else {
+            this.userInfoEndpoint = userInfoUrl;
+        }
+
     }
 
     protected String getTokenEndpoint(Map<String, String> authenticatorProperties) {
