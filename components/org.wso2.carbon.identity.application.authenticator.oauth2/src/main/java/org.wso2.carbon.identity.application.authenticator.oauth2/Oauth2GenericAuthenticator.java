@@ -101,8 +101,7 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
                     .buildQueryMessage();
 
             if (logger.isDebugEnabled()) {
-                logger.debug("authzRequest");
-                logger.debug(authzRequest.getLocationUri());
+                logger.debug(String.join("Authorization Request",authzRequest.getLocationUri()));
             }
 
             response.sendRedirect(authzRequest.getLocationUri());
@@ -131,11 +130,11 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
             Boolean basicAuthEnabled = Boolean.parseBoolean(
                     authenticatorProperties.get(Oauth2GenericAuthenticatorConstants.IS_BASIC_AUTH_ENABLED));
             String code = getAuthorizationCode(request);
-
             String tokenEP = getTokenEndpoint(authenticatorProperties);
             String token = getToken(tokenEP, clientId, clientSecret, code, redirectUri, basicAuthEnabled);
             String userInfoEP = getUserInfoEndpoint(authenticatorProperties);
             String responseBody = getUserInfo(userInfoEP, token);
+
             if (logger.isDebugEnabled()) {
                 logger.debug("Get user info response : " + responseBody);
             }
@@ -261,13 +260,12 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
 
             String inputLine = bufferReader.readLine();
             while (inputLine != null) {
-                stringBuilder.append(inputLine).append("\n");
+                stringBuilder.append(inputLine).append(Oauth2GenericAuthenticatorConstants.NEW_LINE);
                 inputLine = bufferReader.readLine();
             }
         } finally {
             IdentityIOStreamUtils.closeReader(bufferReader);
         }
-
         return stringBuilder.toString();
     }
 
@@ -288,9 +286,11 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
                         .setClientSecret(clientSecret).setGrantType(GrantType.AUTHORIZATION_CODE).setCode(code)
                         .setParameter(Oauth2GenericAuthenticatorConstants.OAUTH2_PARAM_STATE, state)
                         .buildQueryMessage();
-                String base64EncodedCredential = new String(Base64.encodeBase64((clientId + ":" +
-                        clientSecret).getBytes()));
-                tokenRequest.addHeader(OAuth.HeaderType.AUTHORIZATION, "Basic " + base64EncodedCredential);
+                String base64EncodedCredential =
+                        new String(Base64.encodeBase64((clientId + Oauth2GenericAuthenticatorConstants.COLON +
+                                clientSecret).getBytes()));
+                tokenRequest.addHeader(OAuth.HeaderType.AUTHORIZATION,
+                        Oauth2GenericAuthenticatorConstants.AUTH_TYPE + base64EncodedCredential);
             }
         } catch (OAuthSystemException e) {
             throw new ApplicationAuthenticatorException("Exception while building access token request.", e);
@@ -305,68 +305,67 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
 
         Property clientId = new Property();
         clientId.setName(Oauth2GenericAuthenticatorConstants.CLIENT_ID);
-        clientId.setDisplayName("Client Id");
+        clientId.setDisplayName(Oauth2GenericAuthenticatorConstants.CLIENT_ID_DP);
         clientId.setRequired(true);
-        clientId.setDescription("Enter client identifier value");
+        clientId.setDescription(Oauth2GenericAuthenticatorConstants.CLIENT_ID_DESC);
         clientId.setDisplayOrder(1);
         configProperties.add(clientId);
 
         Property clientSecret = new Property();
         clientSecret.setName(Oauth2GenericAuthenticatorConstants.CLIENT_SECRET);
-        clientSecret.setDisplayName("Client Secret");
+        clientSecret.setDisplayName(Oauth2GenericAuthenticatorConstants.CLIENT_SECRET_DP);
         clientSecret.setRequired(true);
         clientSecret.setConfidential(true);
-        clientSecret.setDescription("Enter client secret value");
+        clientSecret.setDescription(Oauth2GenericAuthenticatorConstants.CLIENT_SECRET_DESC);
         clientSecret.setDisplayOrder(2);
         configProperties.add(clientSecret);
 
         Property callbackUrl = new Property();
         callbackUrl.setName(Oauth2GenericAuthenticatorConstants.CALLBACK_URL);
-        callbackUrl.setDisplayName("Callback Url");
+        callbackUrl.setDisplayName(Oauth2GenericAuthenticatorConstants.CALLBACK_URL_DP);
         callbackUrl.setRequired(true);
-        callbackUrl.setDescription("Enter callback url");
+        callbackUrl.setDescription(Oauth2GenericAuthenticatorConstants.CALLBACK_URL_DESC);
         callbackUrl.setDisplayOrder(3);
         configProperties.add(callbackUrl);
 
         Property authorizationUrl = new Property();
         authorizationUrl.setName(Oauth2GenericAuthenticatorConstants.OAUTH_AUTHZ_URL);
-        authorizationUrl.setDisplayName("Authorization Endpoint Url");
+        authorizationUrl.setDisplayName(Oauth2GenericAuthenticatorConstants.OAUTH_AUTHZ_URL_DP);
         authorizationUrl.setRequired(true);
-        authorizationUrl.setDescription("Enter authorization endpoint url");
+        authorizationUrl.setDescription(Oauth2GenericAuthenticatorConstants.OAUTH_AUTHZ_URL_DESC);
         authorizationUrl.setDisplayOrder(4);
         configProperties.add(authorizationUrl);
 
         Property tokenUrl = new Property();
         tokenUrl.setName(Oauth2GenericAuthenticatorConstants.OAUTH_TOKEN_URL);
-        tokenUrl.setDisplayName("Token Endpoint Url");
+        tokenUrl.setDisplayName(Oauth2GenericAuthenticatorConstants.OAUTH_TOKEN_URL_DP);
         tokenUrl.setRequired(true);
-        tokenUrl.setDescription("Enter token endpoint url");
+        tokenUrl.setDescription(Oauth2GenericAuthenticatorConstants.OAUTH_TOKEN_URL_DESC);
         tokenUrl.setDisplayOrder(5);
         configProperties.add(tokenUrl);
 
         Property userInfoUrl = new Property();
         userInfoUrl.setName(Oauth2GenericAuthenticatorConstants.OAUTH_USER_INFO_URL);
-        userInfoUrl.setDisplayName("User Information Endpoint Url");
+        userInfoUrl.setDisplayName(Oauth2GenericAuthenticatorConstants.OAUTH_USER_INFO_URL_DP);
         userInfoUrl.setRequired(true);
-        userInfoUrl.setDescription("Enter user information endpoint url");
+        userInfoUrl.setDescription(Oauth2GenericAuthenticatorConstants.OAUTH_USER_INFO_URL_DESC);
         userInfoUrl.setDisplayOrder(6);
         configProperties.add(userInfoUrl);
 
         Property scope = new Property();
         scope.setName(Oauth2GenericAuthenticatorConstants.SCOPE);
-        scope.setDisplayName("Scope");
+        scope.setDisplayName(Oauth2GenericAuthenticatorConstants.SCOPE_DP);
         scope.setRequired(false);
-        scope.setDescription("Enter the scope");
+        scope.setDescription(Oauth2GenericAuthenticatorConstants.SCOPE_DESC);
         scope.setDisplayOrder(7);
         configProperties.add(scope);
 
         Property enableBasicAuth = new Property();
         enableBasicAuth.setName(Oauth2GenericAuthenticatorConstants.IS_BASIC_AUTH_ENABLED);
-        enableBasicAuth.setDisplayName("Enable HTTP basic auth for client authentication");
+        enableBasicAuth.setDisplayName(Oauth2GenericAuthenticatorConstants.IS_BASIC_AUTH_ENABLED_DP);
         enableBasicAuth.setRequired(false);
-        enableBasicAuth.setDescription(
-                "Specifies that HTTP basic authentication should be used for client authentication, else client credentials will be included in the request body");
-        enableBasicAuth.setType("boolean");
+        enableBasicAuth.setDescription(Oauth2GenericAuthenticatorConstants.IS_BASIC_AUTH_ENABLED_DESC);
+        enableBasicAuth.setType(Oauth2GenericAuthenticatorConstants.VAR_TYPE_BOOLEAN);
         enableBasicAuth.setDisplayOrder(8);
         configProperties.add(enableBasicAuth);
 
@@ -376,11 +375,12 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
     protected String getUserInfo(String apiUrl, String token) {
 
         Map<String, String> requestHeaders = new HashMap<>();
-        requestHeaders.put("Authorization", "Bearer " + token);
+        requestHeaders.put(Oauth2GenericAuthenticatorConstants.AUTH_HEADER_NAME,
+                Oauth2GenericAuthenticatorConstants.TOKEN_TYPE+ token);
 
         HttpURLConnection con = connect(apiUrl);
         try {
-            con.setRequestMethod("GET");
+            con.setRequestMethod(Oauth2GenericAuthenticatorConstants.HTTP_GET_METHOD);
             for (Map.Entry<String, String> header : requestHeaders.entrySet())
                 con.setRequestProperty(header.getKey(), header.getValue());
 
@@ -481,7 +481,7 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
     @Override
     public String getFriendlyName() {
 
-        return "OAUTH2";
+        return Oauth2GenericAuthenticatorConstants.AUTHENTICATOR_FRIENDLY_NAME;
     }
 
     @Override
