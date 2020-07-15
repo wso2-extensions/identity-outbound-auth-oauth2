@@ -89,14 +89,14 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
             Map<String, String> authenticatorProperties = context.getAuthenticatorProperties();
             String clientId = authenticatorProperties.get(Oauth2GenericAuthenticatorConstants.CLIENT_ID);
             String callbackUrl = authenticatorProperties.get(Oauth2GenericAuthenticatorConstants.CALLBACK_URL);
-
             String authorizationEP = getAuthorizationServerEndpoint(authenticatorProperties);
 
             context.setContextIdentifier(stateToken);
 
             String state = stateToken + "," + Oauth2GenericAuthenticatorConstants.OAUTH2_LOGIN_TYPE;
             OAuthClientRequest authzRequest = OAuthClientRequest.authorizationLocation(authorizationEP)
-                    .setClientId(clientId).setResponseType("code").setRedirectURI(callbackUrl)
+                    .setClientId(clientId).setResponseType(Oauth2GenericAuthenticatorConstants.OAUTH2_GRANT_TYPE_CODE)
+                    .setRedirectURI(callbackUrl)
                     .setState(state)
                     .buildQueryMessage();
 
@@ -128,9 +128,8 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
             String clientId = authenticatorProperties.get(Oauth2GenericAuthenticatorConstants.CLIENT_ID);
             String clientSecret = authenticatorProperties.get(Oauth2GenericAuthenticatorConstants.CLIENT_SECRET);
             String redirectUri = authenticatorProperties.get(Oauth2GenericAuthenticatorConstants.CALLBACK_URL);
-            Boolean basicAuthEnabled =
-                    Boolean.parseBoolean(
-                            authenticatorProperties.get(Oauth2GenericAuthenticatorConstants.IS_BASIC_AUTH_ENABLED));
+            Boolean basicAuthEnabled = Boolean.parseBoolean(
+                    authenticatorProperties.get(Oauth2GenericAuthenticatorConstants.IS_BASIC_AUTH_ENABLED));
             String code = getAuthorizationCode(request);
 
             String tokenEP = getTokenEndpoint(authenticatorProperties);
@@ -163,16 +162,15 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
 
             for (Map.Entry<String, Object> entry : userInfoJson.entrySet()) {
                 claims.put(
-
-                        ClaimMapping.build(entry.getKey(), entry.getKey(), null, false), entry.getValue().toString());
-
+                        ClaimMapping.build(entry.getKey(), entry.getKey(), null, false),
+                        entry.getValue().toString());
                 if (logger.isDebugEnabled()
                         && IdentityUtil.isTokenLoggable(IdentityConstants.IdentityTokens.USER_CLAIMS)) {
                     logger.debug("Adding claim mapping : " + entry.getKey() + " <> " + entry.getKey() + " : "
                             + entry.getValue());
                 }
-
             }
+
             if (StringUtils
                     .isBlank(context.getExternalIdP().getIdentityProvider().getClaimConfig().getUserClaimURI())) {
                 context.getExternalIdP().getIdentityProvider().getClaimConfig()
@@ -195,7 +193,6 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
             }
             throw new AuthenticationFailedException("Decoded json object is null");
         }
-
     }
 
     protected void setSubject(AuthenticationContext context, Map<String, Object> jsonObject)
@@ -227,7 +224,7 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
             logger.info(tokenResponseStr);
 
             JSONObject tokenResponse = new JSONObject(tokenResponseStr);
-            token = tokenResponse.getString("access_token");
+            token = tokenResponse.getString(Oauth2GenericAuthenticatorConstants.ACCESS_TOKEN);
             if (StringUtils.isEmpty(token) || StringUtils.isBlank(token))
                 throw new ApplicationAuthenticatorException("Received access token is invalid.");
 
@@ -287,11 +284,11 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
                 tokenRequest = OAuthClientRequest.tokenLocation(tokenEndPoint).setClientId(clientId)
                         .setClientSecret(clientSecret).setGrantType(GrantType.AUTHORIZATION_CODE).setCode(code)
                         .setRedirectURI(redirectUri)
-                        .setParameter("state", state).buildQueryMessage();
+                        .setParameter(Oauth2GenericAuthenticatorConstants.OAUTH2_PARAM_STATE, state).buildQueryMessage();
             } else {
                 tokenRequest = OAuthClientRequest.tokenLocation(tokenEndPoint).setClientId(clientId)
                         .setClientSecret(clientSecret).setGrantType(GrantType.AUTHORIZATION_CODE).setCode(code)
-                        .setParameter("state", state).buildQueryMessage();
+                        .setParameter(Oauth2GenericAuthenticatorConstants.OAUTH2_PARAM_STATE, state).buildQueryMessage();
                 String base64EncodedCredential = new String(Base64.encodeBase64((clientId + ":" +
                         clientSecret).getBytes()));
                 tokenRequest.addHeader(OAuth.HeaderType.AUTHORIZATION, "Basic " + base64EncodedCredential);
@@ -465,10 +462,13 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
         try {
             state = OAuthAuthzResponse.oauthCodeAuthzResponse(request).getState();
             return state.split(",")[0];
-
         } catch (OAuthProblemException e1) {
             logger.error("No context");
             e1.printStackTrace();
+            return null;
+        } catch (IndexOutOfBoundsException e2){
+            logger.error("No state returned");
+            e2.printStackTrace();
             return null;
         }
     }
@@ -494,10 +494,11 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
     protected void initTokenEndpoint(Map<String, String> authenticatorProperties) {
 
         String tokenUrl = authenticatorProperties.get(Oauth2GenericAuthenticatorConstants.OAUTH_TOKEN_URL);
-        if (StringUtils.isEmpty(tokenUrl))
+        if (StringUtils.isEmpty(tokenUrl)) {
             this.tokenEndpoint = getAuthenticatorConfig().getParameterMap()
                     .get(Oauth2GenericAuthenticatorConstants.OAUTH_TOKEN_URL);
-        this.tokenEndpoint = tokenUrl;
+            this.tokenEndpoint = tokenUrl;
+        }
     }
 
     protected void initOAuthEndpoint(Map<String, String> authenticatorProperties) {
