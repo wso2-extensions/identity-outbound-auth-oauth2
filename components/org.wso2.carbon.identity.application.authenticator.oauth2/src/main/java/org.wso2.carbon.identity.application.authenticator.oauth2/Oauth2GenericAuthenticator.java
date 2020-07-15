@@ -178,7 +178,7 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
             }
             String subjectFromClaims = FrameworkUtils
                     .getFederatedSubjectFromClaims(context.getExternalIdP().getIdentityProvider(), claims);
-            if (subjectFromClaims != null && !subjectFromClaims.isEmpty()) {
+            if (StringUtils.isBlank(subjectFromClaims)) {
                 AuthenticatedUser authenticatedUser = AuthenticatedUser
                         .createFederateAuthenticatedUserFromSubjectIdentifier(subjectFromClaims);
                 context.setSubject(authenticatedUser);
@@ -220,14 +220,11 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
             tokenRequest =
                     buidTokenRequest(tokenEndPoint, clientId, clientSecret, state, code, redirectUri, basicAuthEnabled);
             tokenResponseStr = sendRequest(tokenRequest.getLocationUri());
-
-            logger.info(tokenResponseStr);
-
             JSONObject tokenResponse = new JSONObject(tokenResponseStr);
             token = tokenResponse.getString(Oauth2GenericAuthenticatorConstants.ACCESS_TOKEN);
-            if (StringUtils.isEmpty(token) || StringUtils.isBlank(token))
+            if (StringUtils.isBlank(token)) {
                 throw new ApplicationAuthenticatorException("Received access token is invalid.");
-
+            }
         } catch (
                 MalformedURLException e) {
             if (logger.isDebugEnabled()) {
@@ -284,11 +281,13 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
                 tokenRequest = OAuthClientRequest.tokenLocation(tokenEndPoint).setClientId(clientId)
                         .setClientSecret(clientSecret).setGrantType(GrantType.AUTHORIZATION_CODE).setCode(code)
                         .setRedirectURI(redirectUri)
-                        .setParameter(Oauth2GenericAuthenticatorConstants.OAUTH2_PARAM_STATE, state).buildQueryMessage();
+                        .setParameter(Oauth2GenericAuthenticatorConstants.OAUTH2_PARAM_STATE, state)
+                        .buildQueryMessage();
             } else {
                 tokenRequest = OAuthClientRequest.tokenLocation(tokenEndPoint).setClientId(clientId)
                         .setClientSecret(clientSecret).setGrantType(GrantType.AUTHORIZATION_CODE).setCode(code)
-                        .setParameter(Oauth2GenericAuthenticatorConstants.OAUTH2_PARAM_STATE, state).buildQueryMessage();
+                        .setParameter(Oauth2GenericAuthenticatorConstants.OAUTH2_PARAM_STATE, state)
+                        .buildQueryMessage();
                 String base64EncodedCredential = new String(Base64.encodeBase64((clientId + ":" +
                         clientSecret).getBytes()));
                 tokenRequest.addHeader(OAuth.HeaderType.AUTHORIZATION, "Basic " + base64EncodedCredential);
@@ -466,7 +465,7 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
             logger.error("No context");
             e1.printStackTrace();
             return null;
-        } catch (IndexOutOfBoundsException e2){
+        } catch (IndexOutOfBoundsException e2) {
             logger.error("No state returned");
             e2.printStackTrace();
             return null;
