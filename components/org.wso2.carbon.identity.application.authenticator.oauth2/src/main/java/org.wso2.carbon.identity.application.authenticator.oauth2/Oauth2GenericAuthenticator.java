@@ -62,7 +62,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /***
- * Oauth2GenericAuthenticator supports federating authentication with External Oauth IDP s from WSO2 IAM
+ * Oauth2GenericAuthenticator supports federating authentication with External Oauth IDP s from WSO2 IAM.
  */
 public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
         implements FederatedApplicationAuthenticator {
