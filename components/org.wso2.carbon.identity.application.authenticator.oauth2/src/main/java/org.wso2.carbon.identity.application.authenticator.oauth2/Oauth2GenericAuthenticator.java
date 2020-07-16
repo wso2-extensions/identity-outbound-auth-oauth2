@@ -101,7 +101,7 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
                     .buildQueryMessage();
 
             if (logger.isDebugEnabled()) {
-                logger.debug(String.join("Authorization Request",authzRequest.getLocationUri()));
+                logger.debug("Authorization Request: " + authzRequest.getLocationUri());
             }
 
             response.sendRedirect(authzRequest.getLocationUri());
@@ -376,7 +376,7 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
 
         Map<String, String> requestHeaders = new HashMap<>();
         requestHeaders.put(Oauth2GenericAuthenticatorConstants.AUTH_HEADER_NAME,
-                Oauth2GenericAuthenticatorConstants.TOKEN_TYPE+ token);
+                Oauth2GenericAuthenticatorConstants.TOKEN_TYPE + token);
 
         HttpURLConnection con = connect(apiUrl);
         try {
