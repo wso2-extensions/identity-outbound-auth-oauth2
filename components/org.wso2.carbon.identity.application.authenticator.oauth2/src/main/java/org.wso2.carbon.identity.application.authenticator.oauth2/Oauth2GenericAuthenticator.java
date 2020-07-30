@@ -384,7 +384,6 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
             for (Map.Entry<String, String> header : requestHeaders.entrySet()) {
                 con.setRequestProperty(header.getKey(), header.getValue());
             }
-
             int responseCode = con.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 return readBody(con.getInputStream());

@@ -61,6 +61,7 @@ public class Oauth2GenericAuthenticatorConstants {
             "Specifies that HTTP basic authentication should be used for client authentication, " +
                     "else client credentials will be included in the request body";
 
+
     public static final String SCOPE = "Scope";
     public static final String SCOPE_DP = "Scope";
     public static final String SCOPE_DESC = "Enter scope";
