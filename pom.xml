@@ -220,6 +220,8 @@
         <apache.commons.logging.version.range>[1.2,2)</apache.commons.logging.version.range>
         <osgi.framework.version.range>[1.8,2)</osgi.framework.version.range>
         <json.version.range>[3.0,4)</json.version.range>
+        <doclint>none</doclint>
+
     </properties>
 </project>
 

@@ -17,8 +17,8 @@
  ******************************************************************************/
 package org.wso2.carbon.identity.application.authenticator.oauth2;
 
-/***
- * Oauth2GenericAuthenticatorConstants lists constants needed for Oauth2GenericAuthenticator.
+/**
+ * Constant class for Oauth2GenericAuthenticator.
  */
 public class Oauth2GenericAuthenticatorConstants {
 
@@ -58,8 +58,9 @@ public class Oauth2GenericAuthenticatorConstants {
     public static final String IS_BASIC_AUTH_ENABLED = "IsBasicAuthEnabled";
     public static final String IS_BASIC_AUTH_ENABLED_DP = "Enable HTTP basic auth for client authentication";
     public static final String IS_BASIC_AUTH_ENABLED_DESC =
-            "Specifies that HTTP basic authentication should be used for client authentication, else client" +
-                    "credentials will be included in the request body";
+            "Specifies that HTTP basic authentication should be used for client authentication, " +
+                    "else client credentials will be included in the request body";
+
 
     public static final String SCOPE = "Scope";
     public static final String SCOPE_DP = "Scope";
