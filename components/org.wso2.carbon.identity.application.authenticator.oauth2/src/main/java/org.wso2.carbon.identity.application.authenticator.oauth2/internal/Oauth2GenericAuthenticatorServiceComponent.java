@@ -28,6 +28,9 @@ import org.wso2.carbon.identity.application.authenticator.oauth2.Oauth2GenericAu
 
 import java.util.Hashtable;
 
+/***
+ * Internal Class for Oauth2GenericAuthenticator.
+ */
 @Component(name = "Oauth2GenericAuthenticatorServiceComponent", immediate = true)
 public class Oauth2GenericAuthenticatorServiceComponent {
 

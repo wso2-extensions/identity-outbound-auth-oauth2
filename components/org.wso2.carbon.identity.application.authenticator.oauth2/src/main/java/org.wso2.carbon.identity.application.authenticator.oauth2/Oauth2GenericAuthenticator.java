@@ -216,8 +216,8 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
         String tokenResponseStr;
         try {
             String state = this.stateToken;
-            tokenRequest =
-                    buidTokenRequest(tokenEndPoint, clientId, clientSecret, state, code, redirectUri, basicAuthEnabled);
+            tokenRequest = buildTokenRequest(tokenEndPoint, clientId, clientSecret, state, code, redirectUri,
+                    basicAuthEnabled);
             tokenResponseStr = sendRequest(tokenRequest.getLocationUri());
             JSONObject tokenResponse = new JSONObject(tokenResponseStr);
             token = tokenResponse.getString(Oauth2GenericAuthenticatorConstants.ACCESS_TOKEN);
@@ -269,7 +269,7 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
         return stringBuilder.toString();
     }
 
-    protected OAuthClientRequest buidTokenRequest(String tokenEndPoint, String clientId, String clientSecret,
+    protected OAuthClientRequest buildTokenRequest(String tokenEndPoint, String clientId, String clientSecret,
                                                   String state, String code, String redirectUri,
                                                   Boolean basicAuthEnabled) throws ApplicationAuthenticatorException {
 
@@ -381,8 +381,9 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
         HttpURLConnection con = connect(apiUrl);
         try {
             con.setRequestMethod(Oauth2GenericAuthenticatorConstants.HTTP_GET_METHOD);
-            for (Map.Entry<String, String> header : requestHeaders.entrySet())
+            for (Map.Entry<String, String> header : requestHeaders.entrySet()) {
                 con.setRequestProperty(header.getKey(), header.getValue());
+            }
 
             int responseCode = con.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
