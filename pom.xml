@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.wso2</groupId>
         <artifactId>wso2</artifactId>
-        <version>1.2</version>
+        <version>1</version>
     </parent>
 
     <groupId>org.wso2.carbon.identity.outbound.auth.oauth2</groupId>
@@ -163,9 +163,6 @@
                     <extensions>true</extensions>
                     <configuration>
                         <obrRepository>NONE</obrRepository>
-                        <instructions>
-                            <SCM-Revision>${buildNumber}</SCM-Revision>
-                        </instructions>
                     </configuration>
                 </plugin>
                 <plugin>
