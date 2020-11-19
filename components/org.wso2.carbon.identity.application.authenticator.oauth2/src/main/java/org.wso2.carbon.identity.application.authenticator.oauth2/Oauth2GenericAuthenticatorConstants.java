@@ -66,6 +66,12 @@ public class Oauth2GenericAuthenticatorConstants {
     public static final String SCOPE_DP = "Scope";
     public static final String SCOPE_DESC = "Enter scope";
 
+    public static final String CLAIM_RETRIEVING_METHOD = "ClaimRetrievingMethod";
+    public static final String CLAIM_RETRIEVING_METHOD_DP = "Enable retrieving user claims via userinfo endpoint";
+    public static final String CLAIM_RETRIEVING_METHOD_DESC =
+            "Specifies that self contained access token should be used for retrieve user claims, else userinfo endpoint will be used";
+    public static final String CLAIM_RETRIEVING_METHOD_DEFAULT = "enable";
+
     public static final String NEW_LINE = "\n";
     public static final String COLON = ":";
 

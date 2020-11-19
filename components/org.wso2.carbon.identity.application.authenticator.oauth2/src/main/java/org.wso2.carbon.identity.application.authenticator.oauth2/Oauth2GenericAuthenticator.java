@@ -50,7 +50,6 @@ import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -60,6 +59,11 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.core.HttpHeaders;
+
+import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
+import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED;
 
 /***
  * Oauth2GenericAuthenticator supports federating authentication with External Oauth IDP s from WSO2 IAM.
@@ -98,6 +102,7 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
                     .setClientId(clientId).setResponseType(Oauth2GenericAuthenticatorConstants.OAUTH2_GRANT_TYPE_CODE)
                     .setRedirectURI(callbackUrl)
                     .setState(state)
+                    .setScope(authenticatorProperties.get(Oauth2GenericAuthenticatorConstants.SCOPE))
                     .buildQueryMessage();
 
             if (logger.isDebugEnabled()) {
@@ -121,6 +126,9 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
         if (logger.isDebugEnabled()) {
             logger.debug("processAuthenticationResponse");
         }
+        tokenEndpoint = null;
+        oAuthEndpoint = null;
+        userInfoEndpoint = null;
 
         try {
             Map<String, String> authenticatorProperties = context.getAuthenticatorProperties();
@@ -129,17 +137,18 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
             String redirectUri = authenticatorProperties.get(Oauth2GenericAuthenticatorConstants.CALLBACK_URL);
             Boolean basicAuthEnabled = Boolean.parseBoolean(
                     authenticatorProperties.get(Oauth2GenericAuthenticatorConstants.IS_BASIC_AUTH_ENABLED));
+            String authenticationMethod = authenticatorProperties.get(Oauth2GenericAuthenticatorConstants.CLAIM_RETRIEVING_METHOD);
             String code = getAuthorizationCode(request);
             String tokenEP = getTokenEndpoint(authenticatorProperties);
             String token = getToken(tokenEP, clientId, clientSecret, code, redirectUri, basicAuthEnabled);
             String userInfoEP = getUserInfoEndpoint(authenticatorProperties);
-            String responseBody = getUserInfo(userInfoEP, token);
+            String userInfo = getUserInfo(authenticationMethod, token, userInfoEP);
 
             if (logger.isDebugEnabled()) {
-                logger.debug("Get user info response : " + responseBody);
+                logger.debug("Get user info response : " + userInfo);
             }
 
-            buildClaims(context, responseBody);
+            buildClaims(context, userInfo);
         } catch (ApplicationAuthenticatorException e) {
             logger.error("Failed to process Connect response.", e);
             throw new AuthenticationFailedException(e.getMessage(), e);
@@ -197,7 +206,7 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
     protected void setSubject(AuthenticationContext context, Map<String, Object> jsonObject)
             throws ApplicationAuthenticatorException {
 
-        String authenticatedUserId = jsonObject.get(Oauth2GenericAuthenticatorConstants.DEFAULT_USER_IDENTIFIER)
+        String authenticatedUserId = jsonObject.get(context.getExternalIdP().getIdentityProvider().getClaimConfig().getUserClaimURI())
                 .toString();
         if (StringUtils.isEmpty(authenticatedUserId)) {
             throw new ApplicationAuthenticatorException("Authenticated user identifier is empty");
@@ -254,7 +263,11 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
         StringBuilder stringBuilder = new StringBuilder();
 
         try {
-            URLConnection urlConnection = new URL(url).openConnection();
+            HttpURLConnection urlConnection = (HttpURLConnection) new URL(url).openConnection();
+            urlConnection.setDoOutput(true);
+            urlConnection.setRequestProperty(CONTENT_TYPE, APPLICATION_FORM_URLENCODED);
+            urlConnection.setRequestMethod(HttpMethod.POST);
+
             bufferReader = new BufferedReader(
                     new InputStreamReader(urlConnection.getInputStream(), StandardCharsets.UTF_8));
 
@@ -270,8 +283,7 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
     }
 
     protected OAuthClientRequest buildTokenRequest(String tokenEndPoint, String clientId, String clientSecret,
-                                                  String state, String code, String redirectUri,
-                                                  Boolean basicAuthEnabled) throws ApplicationAuthenticatorException {
+                                                   String state, String code, String redirectUri, Boolean basicAuthEnabled) throws ApplicationAuthenticatorException {
 
         OAuthClientRequest tokenRequest;
         try {
@@ -282,9 +294,10 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
                         .setParameter(Oauth2GenericAuthenticatorConstants.OAUTH2_PARAM_STATE, state)
                         .buildQueryMessage();
             } else {
-                tokenRequest = OAuthClientRequest.tokenLocation(tokenEndPoint).setClientId(clientId)
-                        .setClientSecret(clientSecret).setGrantType(GrantType.AUTHORIZATION_CODE).setCode(code)
-                        .setParameter(Oauth2GenericAuthenticatorConstants.OAUTH2_PARAM_STATE, state)
+                tokenRequest = OAuthClientRequest.tokenLocation(tokenEndPoint)
+                        .setGrantType(GrantType.AUTHORIZATION_CODE)
+                        .setRedirectURI(redirectUri)
+                        .setCode(code)
                         .buildQueryMessage();
                 String base64EncodedCredential =
                         new String(Base64.encodeBase64((clientId + Oauth2GenericAuthenticatorConstants.COLON +
@@ -369,18 +382,28 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
         enableBasicAuth.setDisplayOrder(8);
         configProperties.add(enableBasicAuth);
 
+        Property claimRetrievingMethod = new Property();
+        claimRetrievingMethod.setName(Oauth2GenericAuthenticatorConstants.CLAIM_RETRIEVING_METHOD);
+        claimRetrievingMethod.setDisplayName(Oauth2GenericAuthenticatorConstants.CLAIM_RETRIEVING_METHOD_DP);
+        claimRetrievingMethod.setRequired(false);
+        claimRetrievingMethod.setDescription(Oauth2GenericAuthenticatorConstants.CLAIM_RETRIEVING_METHOD_DESC);
+        claimRetrievingMethod.setType("string");
+        claimRetrievingMethod.setDisplayOrder(9);
+        claimRetrievingMethod.setDefaultValue(Oauth2GenericAuthenticatorConstants.CLAIM_RETRIEVING_METHOD_DEFAULT);
+        configProperties.add(claimRetrievingMethod);
+
         return configProperties;
     }
 
-    protected String getUserInfo(String apiUrl, String token) {
+    protected String getUserInfoFromURL(String apiUrl, String token) {
 
         Map<String, String> requestHeaders = new HashMap<>();
-        requestHeaders.put(Oauth2GenericAuthenticatorConstants.AUTH_HEADER_NAME,
+        requestHeaders.put(HttpHeaders.AUTHORIZATION,
                 Oauth2GenericAuthenticatorConstants.TOKEN_TYPE + token);
 
         HttpURLConnection con = connect(apiUrl);
         try {
-            con.setRequestMethod(Oauth2GenericAuthenticatorConstants.HTTP_GET_METHOD);
+            con.setRequestMethod(HttpMethod.GET);
             for (Map.Entry<String, String> header : requestHeaders.entrySet()) {
                 con.setRequestProperty(header.getKey(), header.getValue());
             }
@@ -395,6 +418,38 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
         } finally {
             con.disconnect();
         }
+    }
+
+    protected String getUserInfo(String authenticationMethod, String token, String userInfoEP) {
+
+        String userInfo = null;
+
+        if (authenticationMethod.replaceAll("\\s", "").toLowerCase().
+                contains(Oauth2GenericAuthenticatorConstants.CLAIM_RETRIEVING_METHOD_DEFAULT)) {
+            String responseBody = getUserInfoFromURL(userInfoEP, token);
+            userInfo = responseBody;
+        } else {
+            String tokenBody = decodeAccessToken(token);
+            if (!StringUtils.isBlank(tokenBody)) {
+                userInfo = tokenBody;
+            }
+        }
+
+        return userInfo;
+    }
+
+    protected String decodeAccessToken(String token) {
+
+        String[] split_string = token.split("\\.");
+        String payload = null;
+        if (split_string.length > 1) {
+            String base64EncodedBody = split_string[1];
+
+            String body = new String(Base64.decodeBase64(base64EncodedBody));
+            payload = body;
+        }
+        
+        return payload;
     }
 
     protected HttpURLConnection connect(String apiUrl) {
