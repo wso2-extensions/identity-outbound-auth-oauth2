@@ -227,7 +227,7 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
             String state = this.stateToken;
             tokenRequest = buildTokenRequest(tokenEndPoint, clientId, clientSecret, state, code, redirectUri,
                     basicAuthEnabled);
-            tokenResponseStr = sendRequest(tokenRequest.getLocationUri());
+            tokenResponseStr = sendRequest(tokenRequest);
             JSONObject tokenResponse = new JSONObject(tokenResponseStr);
             token = tokenResponse.getString(Oauth2GenericAuthenticatorConstants.ACCESS_TOKEN);
             if (StringUtils.isBlank(token)) {
@@ -257,14 +257,18 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
         }
     }
 
-    protected String sendRequest(String url) throws IOException {
+    protected String sendRequest(OAuthClientRequest clientRequest) throws IOException {
 
         BufferedReader bufferReader = null;
         StringBuilder stringBuilder = new StringBuilder();
 
         try {
-            HttpURLConnection urlConnection = (HttpURLConnection) new URL(url).openConnection();
+            HttpURLConnection urlConnection = (HttpURLConnection) new URL(clientRequest.getLocationUri()).openConnection();
             urlConnection.setDoOutput(true);
+            if(clientRequest.getHeader(OAuth.HeaderType.AUTHORIZATION)!= null){
+                urlConnection.setRequestProperty(OAuth.HeaderType.AUTHORIZATION,clientRequest.getHeader(OAuth.HeaderType.AUTHORIZATION));
+            }
+
             urlConnection.setRequestProperty(CONTENT_TYPE, APPLICATION_FORM_URLENCODED);
             urlConnection.setRequestMethod(HttpMethod.POST);
 
@@ -427,9 +431,8 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
         if (claimRetrievingMethod.replaceAll("\\s", "").toLowerCase().
                 contains(Oauth2GenericAuthenticatorConstants.CLAIM_RETRIEVING_METHOD_DEFAULT)) {
             String tokenBody = decodeAccessToken(token);
-            if (!StringUtils.isBlank(tokenBody)) {
-                userInfo = tokenBody;
-            }
+            userInfo = tokenBody;
+
         } else {
             String responseBody = getUserInfoFromURL(userInfoEP, token);
             userInfo = responseBody;
@@ -444,7 +447,6 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
         String payload = null;
         if (split_string.length > 1) {
             String base64EncodedBody = split_string[1];
-
             String body = new String(Base64.decodeBase64(base64EncodedBody));
             payload = body;
         }
