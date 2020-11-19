@@ -24,7 +24,6 @@ public class Oauth2GenericAuthenticatorConstants {
 
     public static final String OAUTH2_GRANT_TYPE_CODE = "code";
     public static final String EMAIL = "email";
-    public static final String DEFAULT_USER_IDENTIFIER = "id";
     public static final String OAUTH2_PARAM_STATE = "state";
     public static final String OAUTH2_LOGIN_TYPE = "oauth2";
     public static final String AUTHENTICATOR_NAME = "OAUTH2";
@@ -67,18 +66,16 @@ public class Oauth2GenericAuthenticatorConstants {
     public static final String SCOPE_DESC = "Enter scope";
 
     public static final String CLAIM_RETRIEVING_METHOD = "ClaimRetrievingMethod";
-    public static final String CLAIM_RETRIEVING_METHOD_DP = "Enable retrieving user claims via userinfo endpoint";
+    public static final String CLAIM_RETRIEVING_METHOD_DP = "Enable retrieving user claims via self-contained access token";
     public static final String CLAIM_RETRIEVING_METHOD_DESC =
-            "Specifies that self contained access token should be used for retrieve user claims, else userinfo endpoint will be used";
+            "Specifies that self-contained access token should be used for retrieve user claims, else userinfo endpoint will be used";
     public static final String CLAIM_RETRIEVING_METHOD_DEFAULT = "enable";
 
     public static final String NEW_LINE = "\n";
     public static final String COLON = ":";
 
     public static final String AUTH_TYPE = "Basic ";
-    public static final String AUTH_HEADER_NAME = "Authorization";
     public static final String TOKEN_TYPE = "Bearer ";
-    public static final String HTTP_GET_METHOD = "GET";
 
     public static final String VAR_TYPE_BOOLEAN = "boolean";
 
