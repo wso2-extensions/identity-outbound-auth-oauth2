@@ -177,7 +177,7 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
             }
             String subjectFromClaims = FrameworkUtils
                     .getFederatedSubjectFromClaims(context.getExternalIdP().getIdentityProvider(), claims);
-            if (StringUtils.isBlank(subjectFromClaims)) {
+            if (!StringUtils.isBlank(subjectFromClaims)) {
                 AuthenticatedUser authenticatedUser = AuthenticatedUser
                         .createFederateAuthenticatedUserFromSubjectIdentifier(subjectFromClaims);
                 context.setSubject(authenticatedUser);
