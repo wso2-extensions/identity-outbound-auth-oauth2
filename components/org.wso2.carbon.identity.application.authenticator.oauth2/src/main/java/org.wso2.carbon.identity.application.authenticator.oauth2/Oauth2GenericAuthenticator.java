@@ -151,9 +151,8 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
             logger.error(message, e);
             throw new AuthenticationFailedException(e.getMessage(), e);
         } catch (MisconfigurationException e) {
-            String message = "Exception while retrieving configurations.";
-            logger.error(message, e);
-            throw new AuthenticationFailedException(message, e);
+            logger.error(e.getMessage(), e);
+            throw new AuthenticationFailedException(e.getMessage(), e);
         }
     }
 
@@ -185,9 +184,8 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
             logger.error("Failed to process Connect response.", e);
             throw new AuthenticationFailedException(e.getMessage(), e);
         } catch (MisconfigurationException e) {
-            String message = "Exception while retrieving configurations.";
-            logger.error(message, e);
-            throw new AuthenticationFailedException(message, e);
+            logger.error(e.getMessage(), e);
+            throw new AuthenticationFailedException(e.getMessage(), e);
         }
     }
 
@@ -297,7 +295,6 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
         } catch (OAuthProblemException | OAuthSystemException e) {
             throw new ApplicationAuthenticatorException(e.getMessage(), e);
         }
-
     }
 
     protected OAuthClientRequest buildTokenRequest(String tokenEndPoint, String clientId, String clientSecret,
@@ -419,7 +416,6 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
 
         Map<String, String> requestHeaders = new HashMap<>();
         requestHeaders.put(AUTHORIZATION, TOKEN_TYPE + token);
-
         HttpURLConnection con = connect(apiUrl);
         try {
             con.setRequestMethod(GET);
@@ -455,7 +451,7 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
             try {
                 tokenBody = decodeAccessToken(token);
             } catch (IOException e) {
-                throw new RuntimeException("Exception while decoding access token", e);
+                throw new RuntimeException(e.getMessage(), e);
             }
             return tokenBody;
         } else {
@@ -471,11 +467,11 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
             String base64EncodedBody = split_string[1];
             String payload = new String(Base64.decodeBase64(base64EncodedBody));
             if (StringUtils.isEmpty(payload)) {
-                throw new IOException("Decoded token is null");
+                throw new IOException("Exception while decoding access token. Decoded token is null.");
             }
             return payload;
         } else {
-            throw new IOException("Token does not contain a body");
+            throw new IOException("Exception while decoding access token. Token does not contain a body.");
         }
     }
 
