@@ -11,7 +11,7 @@ demonstrate authentication. Also, this page provides instructions on how to use 
 
 Follow the steps given below to set this up.
 
-* [Step 1 - Configure the Oauth App](#step-1---configure-the-oauth-app)
+* [Step 1 - Configure the Oauth App](#step-1---configure-the-Oauth-App)
 * [Step 2 - Deploy the Pickup Dispatch Sample Web App](#step-2---deploy-the-pickup-dispatch-sample-web-app)
 * [Step 3 - Configure the Identity Provider (IdP)](#step-3---configure-the-identity-provider-idp)
 * [Step 4 - Configure the Service Provider](#step-4---configure-the-service-provider)
@@ -19,11 +19,11 @@ Follow the steps given below to set this up.
 
 ## Step 1 - Configure the Oauth App
 
-Create Oauth Application in External Oauth2 Identity Provider, and obtain client ID and client Secret.
+Create a new application in external Oauth2 Identity Provider, and obtain client ID and client Secret.
 
 ## Step 2 - Deploy the Pickup Dispatch Sample Web App
 
-The next step is to deploy the Pickup Dispatch sample web app in order to use it in this scenario.
+Deploy the Pickup Dispatch sample web app in order to use it in this scenario.
 
 To configure this, see [saml2-web-app-pickup-dispatch 
 webapp](https://is.docs.wso2.com/en/5.9.0/learn/deploying-the-sample-app/#deploying-the-saml2-web-app-pickup-dispatch-webapp).
@@ -33,76 +33,46 @@ webapp](https://is.docs.wso2.com/en/5.9.0/learn/deploying-the-sample-app/#deploy
 1. Place the Oauth authenticator.jar file into the 
 `<IS_HOME>/repository/components/dropins` directory. 
 You can download the .jar file 
-(``) 
-from the [WSO2 Store](https://store.wso2.com/store/assets/isconnector/). 
+from the [WSO2 Store](https://store.wso2.com/store/assets/isconnector/list). 
 
-2. Startup the WSO2 Identity Server
+2. Start the WSO2 Identity Server
 
 3. Next, add a new identity provider in WSO2 Identity Server [adding a new identity 
 provider](https://is.docs.wso2.com/en/5.9.0/learn/adding-and-configuring-an-identity-provider/#adding-and-configuring-an-identity-provider).
 
-a. Log in to the [Management Console](https://is.docs.wso2.com/en/5.9.0/setup/getting-started-with-the-management
+    a. Log in to the [Management Console](https://is.docs.wso2.com/en/5.9.0/setup/getting-started-with-the-management
 -console/) 
 as an administrator.
 
-b. In the **Identity Providers** section under the **Main** tab of the management console, click **Add**.
+    b. In the **Identity Providers** section under the **Main** tab of the management console, click **Add**.
 
-c. Enter a suitable name as the **Identity Provider Name** (e.g., auth).
+    c. Enter a suitable name as the **Identity Provider Name** (e.g., auth).
     >As our resident Identity Provider is
  WSO2 IS, the Alias will appear as follows - `https://(host-name):(port)/oauth2/token`
    
-d. Navigate to the **OAUTH2 Authenticator Configurations** under **Federated Authenticators**.
+    d. Navigate to the **OAUTH2 Authenticator Configurations** under **Federated Authenticators**.
 
-e. Enter the IdP related details as follows.
+    e. Enter the IdP related details as follows.
+    
+    
+| Field | Description | Sample Value |
+| ------------- | ------------- | ------------- |
+|Enable	|Selecting this option enables Oauth2 Identity Provider to be used as an authenticator for users provisioned to the Identity Server|	Selected
+|Default|Selecting the Default checkbox signifies that Naver is the main/default form of authentication. This removes the selection made for any other Default checkboxes for other authenticators.|	Selected
+|Client Id	|This is a unique public identifier for apps which is usually given as a 32-character hex string. Enter the client ID of the app that you created in IdP.|	81b05d91toz66e
+|Client Secret|	This is a secret known only to the application and the authorization server. Enter the client secret of the app that you created in IdP.|	otYR21HMW1PchfwZ
+|Callback URL|	This is the URL to which the browser should be redirected after the authentication is successful. It should have this format: https://(host-name):(port)/commonauth	| https://localhost:9443/commonauth
+|Authorization Endpoint URL|This is used to interact with the resource owner and get the authorization code to access the protected resource.| https://localhost:9444/oauth2/authorize|
+|Token Endpoint URL| This is use to obtain an access token by giving an authorization code 	| https://localhost:9444/oauth2/token|
+|User Information Endpoint URL|This is a resource that returns Claims about the authenticated End-User.	| https://localhost:9444/oauth2/userinfo|
+|Scope|This is a space-delimited list of permissions that requires to authorize the access to a user's details.	| openid |
+|Enable HTTP basic auth for client authentication|This specifies that HTTP basic authentication should be used for client authentication, else client credentials will be included in the request body | true|
+|Enable retrieving user claims via self-contained access token| This Specifies that self-contained access token should be used for retrieve user claims, else userinfo endpoint will be used for retrive user information| true|
 
-    <table>
-       <thead>
-       <tr class="header">
-       <th>Field</th>
-       <th>Description</th>
-       <th>Sample Value</th>
-       </tr>
-       </thead>
-       <tbody>
-       <tr class="odd">
-       <td>Enable</td>
-       <td>Selecting this option enables Oauth2 Identity Provider to be used as an authenticator for users provisioned to
-        the
-        Identity
-        Server.</td>
-       <td>Selected</td>
-       </tr>
-       <tr class="even">
-       <td>Default</td>
-       <td>Selecting the Default checkbox signifies that Oauth2 Identity Provider is a main/default form of
-        authentication. 
-       This removes the selection made for any other Default checkboxes for other authenticators.</td>
-       <td>Selected</td>
-       </tr>
-       <tr class="odd">
-       <td>Client Id</td>
-       <td>This is a unique public identifier for apps which is usually given as a 32-character hex string. 
-       Enter the client ID of the app that you created in Oauth2 Identity Provider.</td>
-       <td>81b05d91toz66e</td>
-       </tr>
-       <tr class="even">
-       <td>Client Secret</td>
-       <td>This is a secret known only to the application and the authorization server. Enter the  client ID  of the 
-       app that you created in Oauth2 Identity Provider.</td>
-       <td>otYR21HMW1PchfwZ</td>
-       </tr>
-       <tr class="odd">
-       <td>Callback URL</td>
-       <td>This is the URL to which the browser should be redirected after the authentication is successful. 
-       It should have this format: https://(host-name):(port)/commonauth</td>
-       <td>https://localhost:9443/commonauth</td>
-       </tr>
-       </tbody>
-       </table>
+   ![is-5100-add-idp-page](img/is-5100-add-idp-page.png)
+   
     
-    ![is-5100-add-idp-page](img/is-5100-add-idp-page.png)
-    
-f. Click on **Register**.
+   f. Click on **Register**.
 
 You have now added the identity provider.
 
@@ -110,7 +80,7 @@ You have now added the identity provider.
 
 The next step is to configure the service provider on the WSO2 Identity Server.
 
-> Edit the service provider you created in Step 2 and do the following configurations.
+> If you have created a service provider already in Step 2, Skip to step 5.f.
 
 1. Return to the management console.
 
@@ -150,7 +120,7 @@ The next step is to configure the service provider on the WSO2 Identity Server.
     g. Configure the Local and Outbound Authentication for Oauth2.
     
     > For more information, see Configuring [Local and Outbound Authentication for a Service 
-    Provider](https://is.docs.wso2.com/en/latest/learn/configuring-local-and-outbound-authentication-for-a-service
+    Provider](https://is.docs.wso2.com/en/latest/learn/configuring-local-and-outbound-authentication-for-a-service)
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         >-provider/) 
     in the WSO2 Identity 5.10.0 guide.
 
@@ -197,8 +167,7 @@ The next step is to configure the service provider on the WSO2 Identity Server.
 2. Place the Oauth authenticator.jar file into the 
    `<Maven_Project_Home>/components/<Component_name>/src/main/resources` directory. 
    You can download the .jar file 
-   (``) 
-   from the [WSO2 Store](https://store.wso2.com/store/assets/isconnector/). 
+   from the [WSO2 Store](https://store.wso2.com/store/assets/isconnector/list). 
 
 3. Add that JAR as a dependency in pom.xml
 <dependency>
