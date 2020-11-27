@@ -39,28 +39,28 @@ public class Oauth2GenericAuthenticatorConstants {
     public static final String CLIENT_SECRET_DESC = "Enter client secret value";
 
     public static final String CALLBACK_URL = "CallbackUrl";
-    public static final String CALLBACK_URL_DP = "Callback Url";
-    public static final String CALLBACK_URL_DESC = "Enter callback Url";
+    public static final String CALLBACK_URL_DP = "Callback URL";
+    public static final String CALLBACK_URL_DESC = "Enter callback URL";
     public static final String CALLBACK_URL_DEFAULT = "/commonauth";
 
     public static final String OAUTH2_AUTHZ_URL = "AuthEndpoint";
-    public static final String OAUTH2_AUTHZ_URL_DP = "Authorization Endpoint Url";
-    public static final String OAUTH2_AUTHZ_URL_DESC = "Enter authorization endpoint Url";
+    public static final String OAUTH2_AUTHZ_URL_DP = "Authorization Endpoint URL";
+    public static final String OAUTH2_AUTHZ_URL_DESC = "Enter authorization endpoint URL";
 
     public static final String OAUTH2_TOKEN_URL = "AuthTokenEndpoint";
-    public static final String OAUTH2_TOKEN_URL_DP = "Token Endpoint Url";
-    public static final String OAUTH2_TOKEN_URL_DESC = "Enter token endpoint Url";
+    public static final String OAUTH2_TOKEN_URL_DP = "Token Endpoint URL";
+    public static final String OAUTH2_TOKEN_URL_DESC = "Enter token endpoint URL";
 
     public static final String OAUTH2_USER_INFO_URL = "UserInfoEndpoint";
-    public static final String OAUTH2_USER_INFO_URL_DP = "User Information Endpoint Url";
-    public static final String OAUTH2_USER_INFO_URL_DESC = "Enter user information endpoint Url";
+    public static final String OAUTH2_USER_INFO_URL_DP = "User Information Endpoint URL";
+    public static final String OAUTH2_USER_INFO_URL_DESC = "Enter user information endpoint URL";
 
     public static final String IS_BASIC_AUTH_ENABLED = "IsBasicAuthEnabled";
     public static final String IS_BASIC_AUTH_ENABLED_DP = "Enable HTTP basic auth for client authentication";
     public static final String IS_BASIC_AUTH_ENABLED_DESC =
             "Specifies that HTTP basic authentication should be used for client authentication, " +
                     "else client credentials will be included in the request body";
-    public static final String IS_BASIC_AUTH_ENABLED_DEFAULT ="false";
+    public static final String IS_BASIC_AUTH_ENABLED_DEFAULT = "false";
 
     public static final String SCOPE = "Scope";
     public static final String SCOPE_DP = "Scope";
@@ -79,8 +79,4 @@ public class Oauth2GenericAuthenticatorConstants {
     public static final String TOKEN_TYPE = "Bearer ";
     public static final String DEFAULT_PROTOCOL_IDENTIFIER = "https";
 
-
-
-
 }
-
