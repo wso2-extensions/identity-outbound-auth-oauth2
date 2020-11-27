@@ -43,7 +43,6 @@ public class Oauth2GenericAuthenticatorConstants {
     public static final String CALLBACK_URL_DESC = "Enter callback Url";
     public static final String CALLBACK_URL_DEFAULT = "/commonauth";
 
-
     public static final String OAUTH2_AUTHZ_URL = "AuthEndpoint";
     public static final String OAUTH2_AUTHZ_URL_DP = "Authorization Endpoint Url";
     public static final String OAUTH2_AUTHZ_URL_DESC = "Enter authorization endpoint Url";

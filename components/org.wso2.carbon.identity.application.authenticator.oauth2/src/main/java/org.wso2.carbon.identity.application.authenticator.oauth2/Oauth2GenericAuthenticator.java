@@ -173,10 +173,9 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
                     StringUtils.lowerCase(authenticatorProperties.get(IS_BASIC_AUTH_ENABLED)));
             Boolean selfContainedTokenEnabled = Boolean.parseBoolean(
                     StringUtils.lowerCase(authenticatorProperties.get(SELF_CONTAINED_TOKEN_ENABLED)));
-            String stateToken = context.getContextIdentifier();
             String code = getAuthorizationCode(request);
             String tokenEP = getTokenEndpoint(authenticatorProperties);
-            String token = getToken(tokenEP, clientId, clientSecret, code, redirectUri, basicAuthEnabled, stateToken);
+            String token = getToken(tokenEP, clientId, clientSecret, code, redirectUri, basicAuthEnabled);
             String userInfo = getUserInfo(selfContainedTokenEnabled, token, authenticatorProperties);
             if (logger.isDebugEnabled()) {
                 logger.debug("Get user info: " + userInfo);
@@ -248,14 +247,14 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
     }
 
     protected String getToken(String tokenEndPoint, String clientId, String clientSecret, String code,
-                              String redirectUri, Boolean basicAuthEnabled, String state)
+                              String redirectUri, Boolean basicAuthEnabled)
             throws ApplicationAuthenticatorException {
 
         OAuthClientRequest tokenRequest;
         String token;
         OAuthClientResponse tokenResponse;
         try {
-            tokenRequest = buildTokenRequest(tokenEndPoint, clientId, clientSecret, state, code, redirectUri,
+            tokenRequest = buildTokenRequest(tokenEndPoint, clientId, clientSecret, code, redirectUri,
                     basicAuthEnabled);
             OAuthClient oAuthClient = new OAuthClient(new URLConnectionClient());
             tokenResponse = getOauthResponse(oAuthClient, tokenRequest);
@@ -302,17 +301,18 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
     }
 
     protected OAuthClientRequest buildTokenRequest(String tokenEndPoint, String clientId, String clientSecret,
-                                                   String state, String code, String redirectUri,
-                                                   Boolean basicAuthEnabled) throws ApplicationAuthenticatorException {
+                                                   String code, String redirectUri, Boolean basicAuthEnabled)
+            throws ApplicationAuthenticatorException {
 
         OAuthClientRequest tokenRequest;
         try {
             if (!basicAuthEnabled) {
                 tokenRequest = OAuthClientRequest.tokenLocation(tokenEndPoint)
                         .setClientId(clientId)
-                        .setClientSecret(clientSecret).setGrantType(AUTHORIZATION_CODE).setCode(code)
+                        .setClientSecret(clientSecret)
+                        .setGrantType(AUTHORIZATION_CODE)
+                        .setCode(code)
                         .setRedirectURI(redirectUri)
-                        .setParameter(Oauth2GenericAuthenticatorConstants.OAUTH2_PARAM_STATE, state)
                         .buildBodyMessage();
             } else {
                 tokenRequest = OAuthClientRequest.tokenLocation(tokenEndPoint)
@@ -427,9 +427,8 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
                 con.setRequestProperty(header.getKey(), header.getValue());
             }
             int responseCode = con.getResponseCode();
-            InputStream inputStream = con.getInputStream();
             if (responseCode == HTTP_OK) {
-                String responseBody = readBody(inputStream);
+                String responseBody = readBody(con.getInputStream());
                 if (StringUtils.isBlank(responseBody)) {
                     String errorMessage = "Empty JSON response from user info endpoint. Unable to fetch user claims.";
                     if (logger.isDebugEnabled()) {
@@ -439,7 +438,7 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
                 }
                 return responseBody;
             } else {
-                throw new IOException("Error while retrieving user info for URL: " + apiUrl + readBody(inputStream));
+                throw new IOException("Error while retrieving user info for URL: " + apiUrl + readBody(con.getErrorStream()));
             }
         } catch (IOException e) {
             throw new RuntimeException("Exception while retrieving user info", e);
