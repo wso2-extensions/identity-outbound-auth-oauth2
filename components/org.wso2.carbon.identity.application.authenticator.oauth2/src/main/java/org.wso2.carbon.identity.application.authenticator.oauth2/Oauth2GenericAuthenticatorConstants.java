@@ -41,6 +41,8 @@ public class Oauth2GenericAuthenticatorConstants {
     public static final String CALLBACK_URL = "CallbackUrl";
     public static final String CALLBACK_URL_DP = "Callback Url";
     public static final String CALLBACK_URL_DESC = "Enter callback Url";
+    public static final String CALLBACK_URL_DEFAULT = "/commonauth";
+
 
     public static final String OAUTH2_AUTHZ_URL = "AuthEndpoint";
     public static final String OAUTH2_AUTHZ_URL_DP = "Authorization Endpoint Url";
@@ -61,7 +63,6 @@ public class Oauth2GenericAuthenticatorConstants {
                     "else client credentials will be included in the request body";
     public static final String IS_BASIC_AUTH_ENABLED_DEFAULT ="false";
 
-
     public static final String SCOPE = "Scope";
     public static final String SCOPE_DP = "Scope";
     public static final String SCOPE_DESC = "Enter scope";
@@ -75,9 +76,10 @@ public class Oauth2GenericAuthenticatorConstants {
     public static final String SELF_CONTAINED_TOKEN_ENABLED_DEFAULT = "false";
 
     public static final String VAR_TYPE_BOOLEAN = "boolean";
-
     public static final String AUTH_TYPE = "Basic ";
     public static final String TOKEN_TYPE = "Bearer ";
+    public static final String DEFAULT_PROTOCOL_IDENTIFIER = "https";
+
 
 
 
