@@ -123,7 +123,8 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
         try {
             Map<String, String> authenticatorProperties = getAuthenticatorProperties(context);
             String clientId = getClientId(authenticatorProperties);
-            String callbackUrl = getCallbackURL(authenticatorProperties, request.getServerName(), request.getServerPort());
+            String callbackUrl = getCallbackURL(authenticatorProperties, request.getServerName(),
+                    request.getServerPort());
             String authorizationEP = getAuthorizationServerEndpoint(authenticatorProperties);
             String scope = authenticatorProperties.get(SCOPE);
             String state = stateToken + "," + OAUTH2_LOGIN_TYPE;
@@ -140,8 +141,8 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
             if (logger.isDebugEnabled()) {
                 logger.debug("Authorization Request: " + authzRequest.getLocationUri());
             }
-
             response.sendRedirect(authzRequest.getLocationUri());
+
         } catch (IOException e) {
             String message = "Exception while redirecting to the login page.";
             logger.error(message, e);
@@ -167,7 +168,8 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
             Map<String, String> authenticatorProperties = getAuthenticatorProperties(context);
             String clientId = getClientId(authenticatorProperties);
             String clientSecret = getClientSecret(authenticatorProperties);
-            String redirectUri = getCallbackURL(authenticatorProperties, request.getServerName(), request.getServerPort());
+            String redirectUri = getCallbackURL(authenticatorProperties, request.getServerName(),
+                    request.getServerPort());
             Boolean basicAuthEnabled = Boolean.parseBoolean(
                     StringUtils.lowerCase(authenticatorProperties.get(IS_BASIC_AUTH_ENABLED)));
             Boolean selfContainedTokenEnabled = Boolean.parseBoolean(
@@ -180,9 +182,9 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
                 logger.debug("Get user info: " + userInfo);
             }
             buildClaims(context, userInfo);
+
         } catch (ApplicationAuthenticatorException e) {
-            logger.error("Failed to process Connect response.", e);
-            throw new AuthenticationFailedException(e.getMessage(), e);
+            throw new AuthenticationFailedException("Failed to process authentication response.", e);
         } catch (MisconfigurationException e) {
             logger.error(e.getMessage(), e);
             throw new AuthenticationFailedException(e.getMessage(), e);
@@ -190,7 +192,7 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
     }
 
     protected void buildClaims(AuthenticationContext context, String userInfoString)
-            throws ApplicationAuthenticatorException, AuthenticationFailedException {
+            throws ApplicationAuthenticatorException {
 
         if (userInfoString != null) {
             Map<String, Object> userInfoJson = JSONUtils.parseJSON(userInfoString);
@@ -220,13 +222,12 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
             } else {
                 setSubject(context, userInfoJson);
             }
-
             context.getSubject().setUserAttributes(claims);
         } else {
             if (logger.isDebugEnabled()) {
                 logger.debug("Decoded json object is null");
             }
-            throw new AuthenticationFailedException("Decoded json object is null");
+            throw new ApplicationAuthenticatorException("Decoded json object is null");
         }
     }
 
@@ -236,7 +237,7 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
         String authenticatedUserId = jsonObject.get(context.getExternalIdP().getIdentityProvider().
                 getClaimConfig().getUserClaimURI())
                 .toString();
-        if (StringUtils.isEmpty(authenticatedUserId)) {
+        if (StringUtils.isBlank(authenticatedUserId)) {
             throw new ApplicationAuthenticatorException("Authenticated user identifier is empty");
         }
         AuthenticatedUser authenticatedUser = AuthenticatedUser
@@ -248,30 +249,19 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
                               String redirectUri, Boolean basicAuthEnabled)
             throws ApplicationAuthenticatorException {
 
-        OAuthClientRequest tokenRequest;
-        String token;
-        OAuthClientResponse tokenResponse;
-        try {
-            tokenRequest = buildTokenRequest(tokenEndPoint, clientId, clientSecret, code, redirectUri,
-                    basicAuthEnabled);
-            OAuthClient oAuthClient = new OAuthClient(new URLConnectionClient());
-            tokenResponse = getOauthResponse(oAuthClient, tokenRequest);
-            token = tokenResponse.getParam(ACCESS_TOKEN);
-            if (StringUtils.isBlank(token)) {
-                String errorMessage = "Access token is empty or null";
-                if (logger.isDebugEnabled()) {
-                    logger.debug(errorMessage);
-                }
-                throw new ApplicationAuthenticatorException(errorMessage);
-            }
-            return token;
-        } catch (ApplicationAuthenticatorException e) {
-            String errorMessage = "Error while sending access token request";
+        OAuthClientRequest tokenRequest = buildTokenRequest(tokenEndPoint, clientId, clientSecret, code, redirectUri,
+                basicAuthEnabled);
+        OAuthClient oAuthClient = new OAuthClient(new URLConnectionClient());
+        OAuthClientResponse tokenResponse = getOauthResponse(oAuthClient, tokenRequest);
+        String token = tokenResponse.getParam(ACCESS_TOKEN);
+        if (StringUtils.isBlank(token)) {
+            String errorMessage = "Access token is empty or null";
             if (logger.isDebugEnabled()) {
-                logger.debug(errorMessage, e);
+                logger.debug(errorMessage);
             }
-            throw new ApplicationAuthenticatorException(errorMessage, e);
+            throw new ApplicationAuthenticatorException(errorMessage);
         }
+        return token;
     }
 
     protected String getAuthorizationCode(HttpServletRequest request) throws ApplicationAuthenticatorException {
@@ -292,8 +282,11 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
         try {
             oAuthResponse = oAuthClient.accessToken(accessRequest);
             return oAuthResponse;
-        } catch (OAuthProblemException | OAuthSystemException e) {
-            throw new ApplicationAuthenticatorException(e.getMessage(), e);
+        } catch (OAuthSystemException | OAuthProblemException e) {
+            if (logger.isDebugEnabled()) {
+                logger.debug(e.getMessage());
+            }
+            throw new ApplicationAuthenticatorException(e.getMessage());
         }
     }
 
@@ -412,7 +405,7 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
         return configProperties;
     }
 
-    protected String getUserInfoFromURL(String apiUrl, String token) {
+    protected String getUserInfoFromURL(String apiUrl, String token) throws ApplicationAuthenticatorException {
 
         Map<String, String> requestHeaders = new HashMap<>();
         requestHeaders.put(AUTHORIZATION, TOKEN_TYPE + token);
@@ -430,48 +423,49 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
                     if (logger.isDebugEnabled()) {
                         logger.debug(errorMessage);
                     }
-                    throw new IOException(errorMessage);
+                    throw new ApplicationAuthenticatorException(errorMessage);
                 }
                 return responseBody;
             } else {
-                throw new IOException("Error while retrieving user info for URL: " + apiUrl + readBody(con.getErrorStream()));
+                String errorMessage = "Error while retrieving user info from URL: " + apiUrl + " " + responseCode;
+                if (logger.isDebugEnabled()) {
+                    logger.debug(errorMessage);
+                }
+                throw new ApplicationAuthenticatorException(errorMessage);
             }
         } catch (IOException e) {
-            throw new RuntimeException("Exception while retrieving user info", e);
+            throw new ApplicationAuthenticatorException(e.getMessage(), e);
         } finally {
             con.disconnect();
         }
     }
 
     protected String getUserInfo(Boolean selfContainedTokenEnabled, String token,
-                                 Map<String, String> authenticatorProperties) throws MisconfigurationException {
+                                 Map<String, String> authenticatorProperties)
+            throws MisconfigurationException, ApplicationAuthenticatorException {
 
         if (selfContainedTokenEnabled) {
-            String tokenBody;
-            try {
-                tokenBody = decodeAccessToken(token);
-            } catch (IOException e) {
-                throw new RuntimeException(e.getMessage(), e);
-            }
-            return tokenBody;
+            return decodeAccessToken(token);
         } else {
             String userInfoEP = getUserInfoEndpoint(authenticatorProperties);
             return getUserInfoFromURL(userInfoEP, token);
         }
     }
 
-    protected String decodeAccessToken(String token) throws IOException {
+    protected String decodeAccessToken(String token) throws ApplicationAuthenticatorException {
 
         String[] split_string = token.split("\\.");
         if (split_string.length > 1) {
             String base64EncodedBody = split_string[1];
             String payload = new String(Base64.decodeBase64(base64EncodedBody));
-            if (StringUtils.isEmpty(payload)) {
-                throw new IOException("Exception while decoding access token. Decoded token is null.");
+            if (StringUtils.isBlank(payload)) {
+                throw new ApplicationAuthenticatorException("Exception while decoding access token. " +
+                        "Decoded token is null.");
             }
             return payload;
         } else {
-            throw new IOException("Exception while decoding access token. Token does not contain a body.");
+            throw new ApplicationAuthenticatorException("Exception while decoding access token. " +
+                    "Token does not contain a body.");
         }
     }
 
@@ -487,7 +481,7 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
         }
     }
 
-    protected String readBody(InputStream body) {
+    protected String readBody(InputStream body) throws ApplicationAuthenticatorException {
 
         InputStreamReader streamReader = new InputStreamReader(body);
         try (BufferedReader lineReader = new BufferedReader(streamReader)) {
@@ -498,7 +492,7 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
             }
             return responseBody.toString();
         } catch (IOException e) {
-            throw new RuntimeException("Error while reading response.", e);
+            throw new ApplicationAuthenticatorException("Error while reading response.", e);
         }
     }
 
@@ -568,7 +562,7 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
     protected String getTokenEndpoint(Map<String, String> authenticatorProperties) throws MisconfigurationException {
 
         String tokenUrl = authenticatorProperties.get(OAUTH2_TOKEN_URL);
-        if (!StringUtils.isEmpty(tokenUrl)) {
+        if (!StringUtils.isBlank(tokenUrl)) {
             return tokenUrl;
         } else {
             String errorMessage = "Error while retrieving properties. Token endpoint cannot be null.";
@@ -581,7 +575,7 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
             throws MisconfigurationException {
 
         String oAuthUrl = authenticatorProperties.get(OAUTH2_AUTHZ_URL);
-        if (!StringUtils.isEmpty(oAuthUrl)) {
+        if (!StringUtils.isBlank(oAuthUrl)) {
             return oAuthUrl;
         } else {
             String errorMessage = "Error while retrieving properties. Authorization server endpoint cannot be null.";
@@ -592,7 +586,7 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
     protected String getUserInfoEndpoint(Map<String, String> authenticatorProperties) throws MisconfigurationException {
 
         String userInfoUrl = authenticatorProperties.get(OAUTH2_USER_INFO_URL);
-        if (!StringUtils.isEmpty(userInfoUrl)) {
+        if (!StringUtils.isBlank(userInfoUrl)) {
             return userInfoUrl;
         } else {
             String errorMessage = "Error while retrieving properties. User info endpoint cannot be null.";
@@ -618,7 +612,7 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
     private String getClientId(Map<String, String> authenticatorProperties) throws MisconfigurationException {
 
         String clientId = authenticatorProperties.get(CLIENT_ID);
-        if (!StringUtils.isEmpty(clientId)) {
+        if (!StringUtils.isBlank(clientId)) {
             return clientId;
         } else {
             String errorMessage = "Error while retrieving properties. Client ID cannot be null.";
@@ -629,7 +623,7 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
     private String getClientSecret(Map<String, String> authenticatorProperties) throws MisconfigurationException {
 
         String clientSecret = authenticatorProperties.get(CLIENT_SECRET);
-        if (!StringUtils.isEmpty(clientSecret)) {
+        if (!StringUtils.isBlank(clientSecret)) {
             return clientSecret;
         } else {
             String errorMessage = "Error while retrieving properties. Client secret cannot be null.";
@@ -637,18 +631,19 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
         }
     }
 
-    private String getCallbackURL(Map<String, String> authenticatorProperties, String serverName, int serverPort) {
+    private String getCallbackURL(Map<String, String> authenticatorProperties, String serverName, int serverPort)
+            throws MisconfigurationException {
 
         String callbackURL = authenticatorProperties.get(CALLBACK_URL);
-        if (!StringUtils.isEmpty(callbackURL)) {
-            return callbackURL;
-        } else {
-            callbackURL = DEFAULT_PROTOCOL_IDENTIFIER + "://" + serverName + ":" + serverPort + CALLBACK_URL_DEFAULT;
-            if (logger.isDebugEnabled()) {
-                logger.debug("Set default callback URL : " + callbackURL);
+        if (StringUtils.isBlank(callbackURL)) {
+            try {
+                callbackURL = new URL(DEFAULT_PROTOCOL_IDENTIFIER, serverName, serverPort, CALLBACK_URL_DEFAULT)
+                        .toString();
+            } catch (MalformedURLException e) {
+                throw new MisconfigurationException(e.getMessage(), e);
             }
             return callbackURL;
         }
+        return callbackURL;
     }
 }
-
