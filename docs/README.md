@@ -69,7 +69,7 @@ as an administrator.
 |Enable HTTP basic auth for client authentication|This specifies that HTTP basic authentication should be used for client authentication, else client credentials will be included in the request body | true|
 |Enable retrieving user claims via self-contained access token| This Specifies that self-contained access token should be used for retrieve user claims, else userinfo endpoint will be used for retrive user information| true|
 
-   ![is-5100-add-idp-page](img/is-5100-add-idp-page.png)
+   ![is-5100-add-idp-page](img/is-5100-add-config-page.png)
    
     
    f. Click on **Register**.

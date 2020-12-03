@@ -78,5 +78,4 @@ public class Oauth2GenericAuthenticatorConstants {
     public static final String AUTH_TYPE = "Basic ";
     public static final String TOKEN_TYPE = "Bearer ";
     public static final String DEFAULT_PROTOCOL_IDENTIFIER = "https";
-
 }

@@ -59,7 +59,4 @@ public class Oauth2GenericAuthenticatorServiceComponent {
             logger.debug("Oauth2 Authenticator bundle is deactivated");
         }
     }
-
 }
-
-
