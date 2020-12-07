@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
@@ -14,7 +14,7 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
- ******************************************************************************/
+ */
 package org.wso2.carbon.identity.application.authenticator.oauth2.internal;
 
 import org.apache.commons.logging.Log;
@@ -28,7 +28,7 @@ import org.wso2.carbon.identity.application.authenticator.oauth2.Oauth2GenericAu
 
 import java.util.Hashtable;
 
-/***
+/*
  * Oauth2GenericAuthenticatorServiceComponent is the Service Component Class.
  */
 @Component(name = "Oauth2GenericAuthenticatorServiceComponent", immediate = true)
@@ -43,13 +43,12 @@ public class Oauth2GenericAuthenticatorServiceComponent {
             Oauth2GenericAuthenticator oauthAuthenticator = new Oauth2GenericAuthenticator();
             Hashtable<String, String> props = new Hashtable<>();
             context.getBundleContext().registerService(ApplicationAuthenticator.class.getName(), oauthAuthenticator,
-                    props);
+                     props);
             if (logger.isDebugEnabled()) {
-                logger.debug("----Oauth Authenticator bundle is activated----");
+                logger.debug("Oauth2 Authenticator bundle is activated");
             }
-
         } catch (Throwable e) {
-            logger.error("----Error while activating Oauth authenticator----", e);
+            logger.error("Error while activating Oauth2 authenticator", e);
         }
     }
 
@@ -57,10 +56,7 @@ public class Oauth2GenericAuthenticatorServiceComponent {
     protected void deactivate(ComponentContext context) {
 
         if (logger.isDebugEnabled()) {
-            logger.debug("----Oauth Authenticator bundle is deactivated----");
+            logger.debug("Oauth2 Authenticator bundle is deactivated");
         }
     }
-
 }
-
-
