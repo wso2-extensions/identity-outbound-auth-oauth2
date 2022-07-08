@@ -38,17 +38,9 @@ public class Oauth2GenericAuthenticatorServiceComponent {
 
     @Activate
     protected void activate(ComponentContext context) {
-
-        try {
-            Oauth2GenericAuthenticator oauthAuthenticator = new Oauth2GenericAuthenticator();
-            Hashtable<String, String> props = new Hashtable<>();
-            context.getBundleContext().registerService(ApplicationAuthenticator.class.getName(), oauthAuthenticator,
-                     props);
-            if (logger.isDebugEnabled()) {
-                logger.debug("Oauth2 Authenticator bundle is activated");
-            }
-        } catch (Throwable e) {
-            logger.error("Error while activating Oauth2 authenticator", e);
+        
+        if (logger.isDebugEnabled()) {
+            logger.debug("Oauth2 Authenticator bundle is activated.");
         }
     }
 
@@ -56,7 +48,7 @@ public class Oauth2GenericAuthenticatorServiceComponent {
     protected void deactivate(ComponentContext context) {
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Oauth2 Authenticator bundle is deactivated");
+            logger.debug("Oauth2 Authenticator bundle is deactivated.");
         }
     }
 }
