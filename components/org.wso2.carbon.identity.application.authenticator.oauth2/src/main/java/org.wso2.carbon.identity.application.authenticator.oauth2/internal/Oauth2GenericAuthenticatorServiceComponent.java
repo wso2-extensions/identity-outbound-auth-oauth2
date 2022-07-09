@@ -23,10 +23,6 @@ import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
-import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
-import org.wso2.carbon.identity.application.authenticator.oauth2.Oauth2GenericAuthenticator;
-
-import java.util.Hashtable;
 
 /*
  * Oauth2GenericAuthenticatorServiceComponent is the Service Component Class.
@@ -38,9 +34,9 @@ public class Oauth2GenericAuthenticatorServiceComponent {
 
     @Activate
     protected void activate(ComponentContext context) {
-        
+
         if (logger.isDebugEnabled()) {
-            logger.debug("Oauth2 Authenticator bundle is activated.");
+            logger.debug("Oauth2 Generic Authenticator bundle is activated.");
         }
     }
 
@@ -48,7 +44,7 @@ public class Oauth2GenericAuthenticatorServiceComponent {
     protected void deactivate(ComponentContext context) {
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Oauth2 Authenticator bundle is deactivated.");
+            logger.debug("Oauth2 Generic Authenticator bundle is deactivated.");
         }
     }
 }
