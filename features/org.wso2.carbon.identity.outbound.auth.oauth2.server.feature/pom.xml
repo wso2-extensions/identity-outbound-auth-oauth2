@@ -26,9 +26,9 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.wso2.carbon.identity.application.authenticator.oauth2.server.feature</artifactId>
+    <artifactId>org.wso2.carbon.identity.outbound.auth.oauth2.server.feature</artifactId>
     <packaging>pom</packaging>
-    <name>OAuth2 Related IDP Functions Server Feature</name>
+    <name>OAuth2 Generic Authenticator Server Feature</name>
     <url>http://wso2.org</url>
 
     <dependencies>
@@ -52,7 +52,7 @@
                             <goal>p2-feature-gen</goal>
                         </goals>
                         <configuration>
-                            <id>org.wso2.carbon.identity.application.authenticator.oauth2.server</id>
+                            <id>org.wso2.carbon.identity.outbound.auth.oauth2.server</id>
                             <adviceFile>
                                 <properties>
                                     <propertyDef>org.wso2.carbon.p2.category.type:server</propertyDef>

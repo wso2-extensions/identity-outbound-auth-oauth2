@@ -39,7 +39,7 @@
 
     <modules>
         <module>components/org.wso2.carbon.identity.application.authenticator.oauth2</module>
-        <module>features/org.wso2.carbon.identity.application.authenticator.oauth2.server.feature</module>
+        <module>features/org.wso2.carbon.identity.outbound.auth.oauth2.server.feature</module>
     </modules>
 
     <dependencyManagement>
