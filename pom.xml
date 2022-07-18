@@ -37,20 +37,18 @@
         <tag>HEAD</tag>
     </scm>
 
-    <profiles>
-        <profile>
-            <id>default</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <modules>
-                <module>components/org.wso2.carbon.identity.application.authenticator.oauth2</module>
-            </modules>
-        </profile>
-    </profiles>
+    <modules>
+        <module>components/org.wso2.carbon.identity.application.authenticator.oauth2</module>
+        <module>features/org.wso2.carbon.identity.application.authenticator.oauth2.server.feature</module>
+    </modules>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.wso2.carbon.identity.outbound.auth.oauth2</groupId>
+                <artifactId>org.wso2.carbon.identity.application.authenticator.oauth2</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity.framework</groupId>
                 <artifactId>org.wso2.carbon.identity.application.authentication.framework</artifactId>
@@ -234,6 +232,7 @@
         <osgi.framework.version.range>[1.8,2)</osgi.framework.version.range>
         <json.version.range>[3.0,4)</json.version.range>
         <jacoco.version>0.7.9</jacoco.version>
+        <carbon.p2.plugin.version>1.5.3</carbon.p2.plugin.version>
 
         <sonar.coverage.exclusions>
             **/*Exception.java,
