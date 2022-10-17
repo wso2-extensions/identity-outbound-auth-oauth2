@@ -81,15 +81,14 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
         }
 
         try {
-            String stateToken = setStateToken(context);
+
             Map<String, String> authenticatorProperties = getAuthenticatorProperties(context);
             String clientId = getClientId(authenticatorProperties);
             String callbackUrl = getCallbackURL(authenticatorProperties, request.getServerName(),
                     request.getServerPort());
             String authorizationEP = getAuthorizationServerEndpoint(authenticatorProperties);
             String scope = authenticatorProperties.get(Oauth2GenericAuthenticatorConstants.SCOPE);
-            String state = stateToken + "," + Oauth2GenericAuthenticatorConstants.OAUTH2_LOGIN_TYPE;
-            context.setContextIdentifier(stateToken);
+            String state = setState(context);
 
             OAuthClientRequest authorizationRequest = OAuthClientRequest.authorizationLocation(authorizationEP)
                     .setClientId(clientId)
@@ -488,9 +487,10 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
         }
     }
 
-    protected String setStateToken(AuthenticationContext context) {
+    protected String setState(AuthenticationContext context) {
 
-        String state = context.getContextIdentifier();
+        String stateToken = context.getContextIdentifier();
+        String state = stateToken + "," + Oauth2GenericAuthenticatorConstants.OAUTH2_LOGIN_TYPE;
         return state;
     }
 
