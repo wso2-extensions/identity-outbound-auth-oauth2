@@ -79,8 +79,9 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
         if (logger.isDebugEnabled()) {
             logger.debug("Initiating authentication request");
         }
-        String stateToken = setState(context);
+
         try {
+            String stateToken = setStateToken(context);
             Map<String, String> authenticatorProperties = getAuthenticatorProperties(context);
             String clientId = getClientId(authenticatorProperties);
             String callbackUrl = getCallbackURL(authenticatorProperties, request.getServerName(),
@@ -487,7 +488,7 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
         }
     }
 
-    protected String setState(AuthenticationContext context) {
+    protected String setStateToken(AuthenticationContext context) {
 
         String state = context.getContextIdentifier();
         return state;
