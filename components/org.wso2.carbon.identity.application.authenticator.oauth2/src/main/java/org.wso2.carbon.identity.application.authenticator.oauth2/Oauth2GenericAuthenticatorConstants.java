@@ -24,7 +24,6 @@ public class Oauth2GenericAuthenticatorConstants {
 
     public static final String OAUTH2_GRANT_TYPE_CODE = "code";
     public static final String EMAIL = "email";
-    public static final String DEFAULT_USER_IDENTIFIER = "id";
     public static final String OAUTH2_PARAM_STATE = "state";
     public static final String OAUTH2_LOGIN_TYPE = "oauth2";
     public static final String AUTHENTICATOR_NAME = "OAUTH2";
