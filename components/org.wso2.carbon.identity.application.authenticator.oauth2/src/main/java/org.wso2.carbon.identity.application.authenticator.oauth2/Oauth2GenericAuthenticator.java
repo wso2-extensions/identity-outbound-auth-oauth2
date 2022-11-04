@@ -87,7 +87,7 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
                     request.getServerPort());
             String authorizationEP = getAuthorizationServerEndpoint(authenticatorProperties);
             String scope = authenticatorProperties.get(Oauth2GenericAuthenticatorConstants.SCOPE);
-            String state = getStateParameter(context);
+            String state = generateState(context);
 
             OAuthClientRequest authorizationRequest = OAuthClientRequest.authorizationLocation(authorizationEP)
                     .setClientId(clientId)
@@ -486,7 +486,17 @@ public class Oauth2GenericAuthenticator extends AbstractApplicationAuthenticator
         }
     }
 
-    protected String getStateParameter(AuthenticationContext context) {
+    /**
+     * @deprecated Use {@link #generateState(AuthenticationContext)} instead.
+     */
+    @Deprecated
+    protected String generateState() {
+
+        SecureRandom random = new SecureRandom();
+        return new BigInteger(130, random).toString(32);
+    }
+
+    protected String generateState(AuthenticationContext context) {
 
         return context.getContextIdentifier() + "," + Oauth2GenericAuthenticatorConstants.OAUTH2_LOGIN_TYPE;
     }
