@@ -27,14 +27,14 @@
     <groupId>org.wso2.carbon.identity.outbound.auth.oauth2</groupId>
     <artifactId>identity-outbound-oauth-oauth2</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.11-SNAPSHOT</version>
+    <version>1.0.11</version>
     <url>http://wso2.org</url>
 
     <scm>
         <url>https://github.com/wso2-extensions/identity-outbound-auth-oauth2.git</url>
         <developerConnection>scm:git:https://github.com/wso2-extensions/identity-outbound-auth-oauth2.git</developerConnection>
         <connection>scm:git:https://github.com/wso2-extensions/identity-outbound-auth-oauth2.git</connection>
-        <tag>HEAD</tag>
+        <tag>v1.0.11</tag>
     </scm>
 
     <modules>
