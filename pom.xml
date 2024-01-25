@@ -221,7 +221,7 @@
         <maven.compiler.plugin.version>2.3.1</maven.compiler.plugin.version>
         <maven.surefire.plugin.version>2.18.1</maven.surefire.plugin.version>
         <osgi.service.component.imp.pkg.version.range>[1.2.0, 2.0.0)</osgi.service.component.imp.pkg.version.range>
-        <identity.framework.package.import.version.range>[5.14.0, 7.0.0)
+        <identity.framework.package.import.version.range>[5.14.0, 8.0.0)
         </identity.framework.package.import.version.range>
         <oauth2.generic.version.range>[1.0.0, 2.0.0)</oauth2.generic.version.range>
         <oauth2.generic.exp.pkg.version>${project.version}</oauth2.generic.exp.pkg.version>
