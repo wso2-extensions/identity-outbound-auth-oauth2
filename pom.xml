@@ -227,7 +227,7 @@
         <oauth2.generic.exp.pkg.version>${project.version}</oauth2.generic.exp.pkg.version>
         <oltu.version.range>[1.0,2)</oltu.version.range>
         <apache.commons.version.range>[2.6,3)</apache.commons.version.range>
-        <javax.servlet.version.range>[2.6,3)</javax.servlet.version.range>
+        <javax.servlet.version.range>[3.1.0, 4.0.0)</javax.servlet.version.range>
         <apache.commons.logging.version.range>[1.2,2)</apache.commons.logging.version.range>
         <osgi.framework.version.range>[1.8,2)</osgi.framework.version.range>
         <json.version.range>[3.0,4)</json.version.range>
