@@ -67,19 +67,6 @@
             <plugins>
                 <plugin>
                     <groupId>org.apache.felix</groupId>
-                    <artifactId>maven-scr-plugin</artifactId>
-                    <version>${maven.scr.plugin.version}</version>
-                    <executions>
-                        <execution>
-                            <id>generate-scr-scrdescriptor</id>
-                            <goals>
-                                <goal>scr</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.felix</groupId>
                     <artifactId>maven-bundle-plugin</artifactId>
                     <version>${maven.bundle.plugin.version}</version>
                     <extensions>true</extensions>
@@ -199,8 +186,8 @@
                 <inherited>true</inherited>
                 <configuration>
                     <encoding>UTF-8</encoding>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>21</source>
+                    <target>21</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -215,10 +202,9 @@
         <oltu.version>1.0.0.wso2v3</oltu.version>
         <carbon.identity.framework.version>5.21.0</carbon.identity.framework.version>
         <apache.felix.scr.ds.annotations.version>1.2.4</apache.felix.scr.ds.annotations.version>
-        <maven.scr.plugin.version>1.24.0</maven.scr.plugin.version>
         <maven.buildnumber.plugin.version>1.4</maven.buildnumber.plugin.version>
-        <maven.bundle.plugin.version>2.4.0</maven.bundle.plugin.version>
-        <maven.compiler.plugin.version>2.3.1</maven.compiler.plugin.version>
+        <maven.bundle.plugin.version>5.1.9</maven.bundle.plugin.version>
+        <maven.compiler.plugin.version>3.14.1</maven.compiler.plugin.version>
         <maven.surefire.plugin.version>2.18.1</maven.surefire.plugin.version>
         <osgi.service.component.imp.pkg.version.range>[1.2.0, 2.0.0)</osgi.service.component.imp.pkg.version.range>
         <identity.framework.package.import.version.range>[5.14.0, 8.0.0)
