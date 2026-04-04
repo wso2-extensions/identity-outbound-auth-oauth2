@@ -217,7 +217,7 @@
         <apache.commons.logging.version.range>[1.2,2)</apache.commons.logging.version.range>
         <osgi.framework.version.range>[1.8,2)</osgi.framework.version.range>
         <json.version.range>[3.0,4)</json.version.range>
-        <jacoco.version>0.7.9</jacoco.version>
+        <jacoco.version>0.8.12</jacoco.version>
         <carbon.p2.plugin.version>1.5.3</carbon.p2.plugin.version>
 
         <sonar.coverage.exclusions>
